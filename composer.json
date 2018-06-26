@@ -1,0 +1,30 @@
+{
+	"name": "manychois/views",
+	"description": "A naive PHP template library",
+	"type": "library",
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Siu Pang Tommy Choi",
+			"email": "manychois@gmail.com"
+		}
+	],
+	"keywords": [ "template" ],
+	"require": {
+		"php": ">=7.0"
+	},
+	"require-dev": {
+		"php": ">=7.0",
+		"phpunit/phpunit": "*"
+	},
+	"autoload": {
+		"psr-4": {
+			"Manychois\\Views\\": "src/"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"Manychois\\Views\\Tests\\": "tests/"
+		}
+	}
+}
