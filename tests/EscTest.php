@@ -7,6 +7,25 @@ use PHPUnit\Framework\TestCase;
 class EscTest extends TestCase
 {
     /**
+     * @dataProvider data_attr
+     */
+    public function test_attr($expected, $html)
+    {
+        $this->assertSame($expected, Esc::attr($html));
+    }
+
+    public function data_attr()
+    {
+        return [
+            ['You &amp; me', 'You & me'],
+            ['1 &lt; 2', '1 < 2'],
+            ['3 &gt; 0', '3 > 0'],
+            ['It&#039;s good', 'It\'s good'],
+            ['&quot;quote&quot;', '"quote"'],
+        ];
+    }
+
+    /**
      * @dataProvider data_html
      */
     public function test_html($expected, $html)
@@ -19,7 +38,9 @@ class EscTest extends TestCase
         return [
             ['You &amp; me', 'You & me'],
             ['1 &lt; 2', '1 < 2'],
-            ['3 &gt; 0', '3 > 0']
+            ['3 &gt; 0', '3 > 0'],
+            ['It\'s good', 'It\'s good'],
+            ['"quote"', '"quote"'],
         ];
     }
 

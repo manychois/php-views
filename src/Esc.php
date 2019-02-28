@@ -4,8 +4,18 @@ namespace Manychois\Views;
 class Esc
 {
     /**
+     * Escape HTML attribute value.
+     * @param string $text
+     * @return string
+     */
+    public static function attr(string $text) : string
+    {
+        return htmlspecialchars($text, ENT_QUOTES);
+    }
+
+    /**
      * Escape HTML string.
-     * @param string $text 
+     * @param string $text
      * @return string
      */
     public static function html(string $text) : string
@@ -25,7 +35,7 @@ class Esc
 
     /**
      * Escape URL part.
-     * @param string $text 
+     * @param string $text
      * @return string
      */
     public static function url(string $text) : string

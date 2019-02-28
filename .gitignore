@@ -11,3 +11,5 @@ composer.phar
 /php-views.sln
 /php-views.phpproj
 /.vs
+*.cache
+/php-views.phpproj.user
