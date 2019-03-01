@@ -40,6 +40,23 @@ class ResourceDependencyTest extends TestCase
         ob_get_clean();
     }
 
+    public function test_render_unknownDependency_failed()
+    {
+        $rd = new ResourceDependency();
+        $rd->define('a', '<link rel="stylesheet" type="text/css" href="a.css" />', ['b']);
+
+        $rd->register('a');
+        ob_start();
+        try {
+            $rd->render();
+            $this->fail("Expected Exception has not been raised.");
+        }
+        catch (\Exception $ex) {
+            $this->assertSame('Resource a depends on a missing resource b.', $ex->getMessage());
+        }
+        ob_get_clean();
+    }
+
     public function test_register_unknown_failed()
     {
         $rd = new ResourceDependency();

@@ -2,7 +2,6 @@
 namespace Manychois\Views\Tests;
 
 use Manychois\Views\View;
-use Manychois\Views\ViewModel;
 
 class MasterView extends View
 {

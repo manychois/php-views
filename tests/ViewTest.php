@@ -3,7 +3,6 @@ namespace Manychois\Views\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Manychois\Views\View;
-use Manychois\Views\ViewModel;
 
 class ViewTest extends TestCase
 {
