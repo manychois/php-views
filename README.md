@@ -80,8 +80,9 @@ View::render($view, 'Title'); // model data is passed into views.
 There are a few classes to help you generate HTML.
 
 #### `Manychois\Views\Esc`
-It contains three static methods to escape string.
+It contains four static methods to escape string.
 + `Esc::html(string $text)`
++ `Esc::attr(string $text)`
 + `Esc::js(string $text)`
 + `Esc::url(string $text)`
 
