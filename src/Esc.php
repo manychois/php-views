@@ -9,13 +9,13 @@ class Esc
     /**
      * Escape string for HTML attribute value.
      * @param string $text String to escape.
-     * @param bool $unQuoted Set true if the attribute value will not be enclosed by quotes. In that case, whitespace
+     * @param bool $unquoted Set true if the attribute value will not be enclosed by quotes. In that case, whitespace
      *                       characters will be escaped.
      */
-    public function attr(string $text, bool $unQuoted = false): string
+    public function attr(string $text, bool $unquoted = false): string
     {
         $esc = htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML5);
-        if ($unQuoted) {
+        if ($unquoted) {
             $esc = strtr($esc, [
                 ' ' => '&#32;',
                 "\f" => '&#12;',

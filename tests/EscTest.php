@@ -12,21 +12,28 @@ class EscTest extends TestCase
     /**
      * @dataProvider data_attr
      */
-    public function test_attr($expected, $html): void
+    public function test_attr($expected, $html, $unquoted): void
     {
         $e = new Esc();
-        $this->assertSame($expected, $e->attr($html));
+        $this->assertSame($expected, $e->attr($html, $unquoted));
     }
 
     public static function data_attr()
     {
         return [
-            ['You &amp; me', 'You & me'],
-            ['1 &lt; 2', '1 < 2'],
-            ['3 &gt; 0', '3 > 0'],
-            ['It&apos;s good', 'It\'s good'],
-            ['&quot;quote&quot;', '"quote"'],
+            ['You &amp; me', 'You & me', false],
+            ['1 &lt; 2', '1 < 2', false],
+            ['3 &gt; 0', '3 > 0', false],
+            ['It&apos;s good', 'It\'s good', false],
+            ['&quot;quote&quot;', '"quote"', false],
+            ['a&#32;b&gt;c', 'a b>c', true],
         ];
+    }
+
+    public function test_css(): void
+    {
+        $e = new Esc();
+        $this->assertSame('a\\\\b', $e->css('a\b'));
     }
 
     /**
@@ -52,20 +59,21 @@ class EscTest extends TestCase
     /**
      * @dataProvider data_js
      */
-    public function test_js($expected, $html): void
+    public function test_js(string $expected, string $text, bool $templateMode): void
     {
         $e = new Esc();
-        $this->assertSame($expected, $e->js($html));
+        $this->assertSame($expected, $e->js($text, $templateMode));
     }
 
     public static function data_js()
     {
         return [
-            ['', ''],
-            ['It\\\'s me', "It's me"],
-            ['\\"Hello!\\"', '"Hello!"'],
-            ['Path \\\\tmp', 'Path \\tmp'],
-            ['Line 1\nLine 2', 'Line 1' . "\n" . 'Line 2'],
+            ['', '', false],
+            ['It\\\'s me', "It's me", false],
+            ['\\"Hello!\\"', '"Hello!"', false],
+            ['Path \\\\tmp', 'Path \\tmp', false],
+            ['Line 1\nLine 2', 'Line 1' . "\n" . 'Line 2', false],
+            ["a\\`\nb", "a`\nb", true],
         ];
     }
 
