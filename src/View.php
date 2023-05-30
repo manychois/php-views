@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Manychois\Views;
 
-use Exception;
-
 /**
  * Base class for building view template.
  */
@@ -13,18 +11,15 @@ abstract class View
 {
     private static int $idCounter = 0;
     private ?View $childView = null;
-    protected $viewData = null;
+    protected mixed $viewData = null;
 
     /**
      * Returns the View content along with its ancestor views.
      * @param string $class The class name of the view.
      * @param mixed $data The data to be passed to the view.
      */
-    final public static function render(string $class, $data): string
+    final public static function render(string $class, mixed $data): string
     {
-        /**
-         * @var Array<View>
-         */
         $topView = new $class();
         assert($topView instanceof View);
         $p = $topView->getParentViewClass();

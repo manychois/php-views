@@ -12,13 +12,16 @@ class EscTest extends TestCase
     /**
      * @dataProvider data_attr
      */
-    public function test_attr($expected, $html, $unquoted): void
+    public function test_attr(string $expected, string $html, bool $unquoted): void
     {
         $e = new Esc();
         $this->assertSame($expected, $e->attr($html, $unquoted));
     }
 
-    public static function data_attr()
+    /**
+     * @return array<string|bool>
+     */
+    public static function data_attr(): array
     {
         return [
             ['You &amp; me', 'You & me', false],
@@ -39,13 +42,16 @@ class EscTest extends TestCase
     /**
      * @dataProvider data_html
      */
-    public function test_html($expected, $html): void
+    public function test_html(string $expected, string $html): void
     {
         $e = new Esc();
         $this->assertSame($expected, $e->html($html));
     }
 
-    public static function data_html()
+    /**
+     * @return array<string>
+     */
+    public static function data_html(): array
     {
         return [
             ['You &amp; me', 'You & me'],
@@ -65,7 +71,10 @@ class EscTest extends TestCase
         $this->assertSame($expected, $e->js($text, $templateMode));
     }
 
-    public static function data_js()
+    /**
+     * @return array<string|bool>
+     */
+    public static function data_js(): array
     {
         return [
             ['', '', false],
@@ -80,13 +89,16 @@ class EscTest extends TestCase
     /**
      * @dataProvider data_url
      */
-    public function test_url($expected, $html): void
+    public function test_url(string $expected, string $text): void
     {
         $e = new Esc();
-        $this->assertSame($expected, $e->url($html));
+        $this->assertSame($expected, $e->url($text));
     }
 
-    public static function data_url()
+    /**
+     * @return array<string>
+     */
+    public static function data_url(): array
     {
         return [
             ['ice%20cream', 'ice cream'],
