@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Manychois\Views;
 
+/**
+ * Provides methods for escaping strings for different contexts.
+ */
 class Esc
 {
     /**

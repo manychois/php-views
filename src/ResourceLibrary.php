@@ -11,7 +11,7 @@ use OutOfBoundsException;
 use OutOfRangeException;
 
 /**
- * A utility that supports dependency management of related resources.
+ * Supports dependency management of related resources.
  * @template T
  */
 class ResourceLibrary
