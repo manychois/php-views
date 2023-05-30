@@ -1,20 +1,20 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Manychois\Views\Tests;
 
 use Manychois\Views\View;
 
-class MasterView extends View
+class MasterViewOne extends View
 {
-
     #region Manychois\Views\View Members
 
-    /**
-     * Outputs the content of this view.
-     */
-    public function renderContent()
+    public function body(): string
     {
         $vm = $this->getViewModel();
-?>
+        ob_start();
+        ?>
 <!doctype html>
 <html lang="en">
 <head>
@@ -22,33 +22,36 @@ class MasterView extends View
     <title>
         <?php echo $vm->title; ?>
     </title>
-    <?php $this->section('head', true);?>
+        <?= $this->region('Head') ?>
 </head>
 <body>
     <main>
         <?php
-        if ($this->hasChild()) {
-            $this->content();
+        if ($this->getChildView()) {
+            echo $this->inner();
         } else {
             echo 'No content';
         }
-		?>
+        ?>
     </main>
-    <?php
-        if ($this->hasChildSection('scripts')) {
-            $this->section('scripts');
+        <?php
+        $script = $this->region('Scripts');
+        if ($script) {
+            echo $script;
         } else {
             echo '<!-- No JavaScript -->';
         }
-	?>
+        ?>
 </body>
 </html>
-<?php
+        <?php
+        return ob_get_clean();
     }
 
     #endregion
 
-    private function getViewModel() : ViewModel {
-        return $this->model;
+    private function getViewModel(): ViewModel
+    {
+        return $this->viewData;
     }
 }

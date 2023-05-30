@@ -1,95 +1,103 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Manychois\Views;
 
+use Exception;
+
+/**
+ * Base class for building view template.
+ */
 abstract class View
 {
-    public static function render(View $view, $model = null)
+    private static int $idCounter = 0;
+    private ?View $childView = null;
+    protected $viewData = null;
+
+    /**
+     * Returns the View content along with its ancestor views.
+     * @param string $class The class name of the view.
+     * @param mixed $data The data to be passed to the view.
+     */
+    final public static function render(string $class, $data): string
     {
-        $view->model = $model;
-        $topmost = $view;
-        while ($topmost->parent) {
-            $topmost = $topmost->parent;
-            $topmost->model = $model;
+        /**
+         * @var Array<View>
+         */
+        $topView = new $class();
+        assert($topView instanceof View);
+        $p = $topView->getParentViewClass();
+        while ($p) {
+            $parent = new $p();
+            assert($parent instanceof View);
+            $parent->childView = $topView;
+            $topView = $parent;
+            $p = $topView->getParentViewClass();
         }
-        $topmost->renderContent();
+        $topView->viewData = $data;
+        return $topView->body($data);
     }
 
     /**
-     * Parent view.
-     * @var null|View
+     * Returns a unique id value.
+     * @param string $prefix The prefix of the id.
      */
-    private $parent = null;
-
-    /**
-     * Child view.
-     * @var null|View
-     */
-    private $child = null;
-
-    /**
-     * Model data, passed during the render process.
-     * @var mixed
-     */
-    protected $model = null;
-
-    /**
-     * Calls renderContent() of the child view.
-     */
-    public final function content()
+    final protected function createId(string $prefix = 'id-'): string
     {
-        if ($this->child) $this->child->renderContent();
+        return $prefix . ++self::$idCounter;
     }
 
     /**
-     * Returns whether a child view is defined during the render process.
-     * @return boolean True if a child view is defined.
+     * Returns a random placeholder string.
      */
-    public final function hasChild() : bool
+    final protected function createPlaceholder(): string
     {
-        return !is_null($this->child);
+        return '[Pl@ceH0lder' . random_int(0, 999999) . '}';
     }
 
     /**
-     * Returns whether a child view is defined and has the method render_$sectionName defined.
-     * @return boolean True if a child view contains the method render_$sectionName.
+     * Returns the main content of its child view, or empty if there is no child view.
+     * The
      */
-    public final function hasChildSection(string $sectionName) : bool
+    final protected function inner(): string
     {
-        return !is_null($this->child) && method_exists($this->child, "render_$sectionName");
-    }
-
-    /**
-     * Calls render_$sectionName of the child view.
-     * @param string $sectionName Name of the section.
-     * @param bool $required Set true to throw exception if the child view does not define the render_$sectionName method.
-     */
-    public final function section(string $sectionName, bool $required = false)
-    {
-        if ($this->child) {
-            if (method_exists($this->child, "render_$sectionName")) {
-                call_user_func([$this->child, "render_$sectionName"]);
-            } elseif ($required) {
-                $childClass = get_class($this->child);
-                throw new \BadMethodCallException("Method render_$sectionName is not defined in the child view $childClass.");
+        if ($this->childView) {
+            if ($this->childView->viewData === null) {
+                $this->childView->viewData = $this->viewData;
             }
-        } elseif ($required) {
-            $className = get_class($this);
-            throw new \BadMethodCallException("Child view is undefined for view $className.");
+            return $this->childView->body($this->viewData);
         }
+        return '';
     }
 
     /**
-     * Sets the parent view.
-     * @param View $parent Parent view.
+     * Returns the content of its child view, or empty if there is no child view.
+     * @param string $label The label of the region. The parent view will call the child view's render$label method.
+     * @return string The content of the region.
      */
-    public final function setParentView(View $parent)
+    final protected function region(string $label): string
     {
-        $parent->child = $this;
-        $this->parent = $parent;
+        if ($this->childView) {
+            if ($this->childView->viewData === null) {
+                $this->childView->viewData = $this->viewData;
+            }
+            if (method_exists($this->childView, "render$label")) {
+                return call_user_func([$this->childView, "render$label"], $this->viewData);
+            }
+        }
+        return '';
     }
 
-    /**
-     * Outputs the content of this view.
-     */
-    public abstract function renderContent();
+    final public function getChildView(): ?View
+    {
+        return $this->childView;
+    }
+
+    public function getParentViewClass(): string
+    {
+        return '';
+    }
+
+    abstract public function body(): string;
 }
