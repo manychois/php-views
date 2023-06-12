@@ -31,7 +31,7 @@ abstract class View
             $p = $topView->getParentViewClass();
         }
         $topView->viewData = $data;
-        return $topView->body($data);
+        return $topView->body();
     }
 
     /**
@@ -61,7 +61,7 @@ abstract class View
             if ($this->childView->viewData === null) {
                 $this->childView->viewData = $this->viewData;
             }
-            return $this->childView->body($this->viewData);
+            return $this->childView->body();
         }
         return '';
     }
@@ -78,7 +78,11 @@ abstract class View
                 $this->childView->viewData = $this->viewData;
             }
             if (method_exists($this->childView, "render$label")) {
-                return call_user_func([$this->childView, "render$label"], $this->viewData);
+                $callable = [$this->childView, "render$label"];
+                assert(is_callable($callable));
+                $result = call_user_func($callable, $this->viewData);
+                assert(is_string($result));
+                return $result;
             }
         }
         return '';

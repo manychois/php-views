@@ -144,20 +144,21 @@ class ResourceLibrary
             if ($deps) {
                 foreach ($chains as &$chain) {
                     $i = array_search($candidate, $chain, true);
-                    if ($i === false) {
+                    if (!is_int($i)) {
                         continue;
                     }
                     foreach ($deps as $d) {
                         $j = array_search($d, $chain, true);
-                        if ($j + 1 === count($chain)) {
-                            throw new Exception(
-                                'Circular dependency detected: ' . implode(' < ', array_merge([$d], $chain))
-                            );
-                        }
-                        if ($j === false) {
-                            array_splice($chain, $i, 0, [$d]);
-                        } elseif ($j > $i) {
-                            array_splice($chain, $j, 1);
+                        if (is_int($j)) {
+                            if ($j + 1 === count($chain)) {
+                                throw new Exception(
+                                    'Circular dependency detected: ' . implode(' < ', array_merge([$d], $chain))
+                                );
+                            } elseif ($j > $i) {
+                                array_splice($chain, $j, 1);
+                                array_splice($chain, $i, 0, [$d]);
+                            }
+                        } else {
                             array_splice($chain, $i, 0, [$d]);
                         }
                     }

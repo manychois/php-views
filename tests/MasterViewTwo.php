@@ -28,6 +28,7 @@ class MasterViewTwo extends View
 </html>
         <?php
         $s = ob_get_clean();
+        assert(is_string($s));
         return strtr($s, [$title => $this->getViewModel()->title]);
     }
 
@@ -35,7 +36,7 @@ class MasterViewTwo extends View
 
     private function getViewModel(): ViewModel
     {
+        assert($this->viewData instanceof ViewModel);
         return $this->viewData;
     }
 }
-

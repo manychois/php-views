@@ -19,11 +19,13 @@ class ChildViewOne extends View
     {
         ob_start();
         ?>
-<article>
-    <h1>Hello World!</h1>
-</article>
+        <article>
+            <h1>Hello World!</h1>
+        </article>
         <?php
-        return ob_get_clean();
+        $s = ob_get_clean();
+        assert(is_string($s));
+        return $s;
     }
 
     #endregion

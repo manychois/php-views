@@ -25,6 +25,7 @@ class ChildViewThree extends View
 
     private function getViewModel(): ViewModel
     {
+        assert($this->viewData instanceof ViewModel);
         return $this->viewData;
     }
 }

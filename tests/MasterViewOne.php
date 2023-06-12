@@ -45,13 +45,16 @@ class MasterViewOne extends View
 </body>
 </html>
         <?php
-        return ob_get_clean();
+        $s = ob_get_clean();
+        assert(is_string($s));
+        return $s;
     }
 
     #endregion
 
     private function getViewModel(): ViewModel
     {
+        assert($this->viewData instanceof ViewModel);
         return $this->viewData;
     }
 }

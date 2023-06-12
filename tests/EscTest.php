@@ -19,7 +19,7 @@ class EscTest extends TestCase
     }
 
     /**
-     * @return array<string|bool>
+     * @return array<array<string|bool>>
      */
     public static function data_attr(): array
     {
@@ -49,7 +49,7 @@ class EscTest extends TestCase
     }
 
     /**
-     * @return array<string>
+     * @return array<array<string>>
      */
     public static function data_html(): array
     {
@@ -72,7 +72,7 @@ class EscTest extends TestCase
     }
 
     /**
-     * @return array<string|bool>
+     * @return array<array<string|bool>>
      */
     public static function data_js(): array
     {
@@ -96,7 +96,7 @@ class EscTest extends TestCase
     }
 
     /**
-     * @return array<string>
+     * @return array<array<string>>
      */
     public static function data_url(): array
     {

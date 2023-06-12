@@ -6,7 +6,7 @@
   "authors": [
     {
       "name": "Siu Pang Tommy Choi",
-      "email": "manychois@gmail.com"
+      "email": "manychois@manychois.com.au"
     }
   ],
   "keywords": [
@@ -19,7 +19,8 @@
     "php": ">=8",
     "phpunit/phpunit": ">=10",
     "squizlabs/php_codesniffer": ">=3",
-    "slevomat/coding-standard": ">=8"
+    "slevomat/coding-standard": ">=8",
+    "phpstan/phpstan": ">=1"
   },
   "autoload": {
     "psr-4": {
@@ -32,12 +33,14 @@
     }
   },
   "scripts": {
-    "test": "vendor/bin/phpunit",
+    "test": "phpunit",
     "phpcs": "phpcs --standard=phpcs.xml -s",
     "phpcbf": "phpcbf --standard=phpcs.xml || true",
-    "format": [
+    "phpstan": "phpstan analyse src tests --level max",
+    "code": [
       "@phpcbf",
-      "@phpcs"
+      "@phpcs",
+      "@phpstan"
     ]
   },
   "config": {
