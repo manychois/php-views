@@ -1,10 +1,10 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Manychois\Views\Tests;
 
 class ViewModel
 {
-    /**
-     * @var string
-     */
-    public $title;
+    public string $title;
 }

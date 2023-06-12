@@ -1,19 +1,19 @@
 <?php
+
+declare(strict_types=1);
+
 namespace Manychois\Views\Tests;
 
-use PHPUnit\Framework\TestCase;
 use Manychois\Views\View;
+use PHPUnit\Framework\TestCase;
 
 class ViewTest extends TestCase
 {
-    public function test_render_success()
+    public function test_render_ok(): void
     {
-        $view = new ChildView();
         $model = new ViewModel();
         $model->title = 'Testing';
-        ob_start();
-        View::render($view, $model);
-        $output = ob_get_clean();
+        $output = View::render(ChildViewOne::class, $model);
         $output = str_replace("\r", '', $output);
         $output = str_replace("\n", '', $output);
         $output = preg_replace('/\\s{2,}/', '', $output);
@@ -21,35 +21,58 @@ class ViewTest extends TestCase
         $this->assertSame($expected, $output);
     }
 
-    public function test_render_missingMethod_failed()
+    public function test_render_missingRegion_ok(): void
     {
-        $view = new FailedChildView();
         $model = new ViewModel();
         $model->title = 'Testing';
-        ob_start();
-        try {
-            View::render($view, $model);
-            $this->fail("Expected Exception has not been raised.");
-        }
-        catch (\Exception $ex) {
-            $this->assertSame('Method render_head is not defined in the child view Manychois\Views\Tests\FailedChildView.', $ex->getMessage());
-        }
-        ob_get_clean();
+        $output = View::render(ChildViewTwo::class, $model);
+        $output = str_replace("\r", '', $output);
+        $output = str_replace("\n", '', $output);
+        $output = preg_replace('/\\s{2,}/', '', $output);
+        $expected = '<!doctype html><html lang="en"><head><meta charset="utf-8" /><title>Testing</title></head><body><main><article><h1>Hello World!</h1></article></main><!-- No JavaScript --></body></html>';
+        $this->assertSame($expected, $output);
     }
 
-    public function test_render_missingChild_failed()
+    public function test_render_missingChild_ok(): void
     {
-        $view = new MasterView();
         $model = new ViewModel();
         $model->title = 'Testing';
-        ob_start();
-        try {
-            View::render($view, $model);
-            $this->fail("Expected Exception has not been raised.");
-        }
-        catch (\Exception $ex) {
-            $this->assertSame('Child view is undefined for view Manychois\Views\Tests\MasterView.', $ex->getMessage());
-        }
-        ob_get_clean();
+        $output = View::render(MasterViewOne::class, $model);
+        $output = str_replace("\r", '', $output);
+        $output = str_replace("\n", '', $output);
+        $output = preg_replace('/\\s{2,}/', '', $output);
+        $expected = '<!doctype html><html lang="en"><head><meta charset="utf-8" /><title>Testing</title></head><body><main>No content</main><!-- No JavaScript --></body></html>';
+        $this->assertSame($expected, $output);
+    }
+
+    public function test_render_missingChild_ok_2(): void
+    {
+        $model = new ViewModel();
+        $model->title = 'Testing';
+        $output = View::render(MasterViewTwo::class, $model);
+        $output = str_replace("\r", '', $output);
+        $output = str_replace("\n", '', $output);
+        $output = preg_replace('/\\s{2,}/', '', $output);
+        assert(is_string($output));
+        $regex = preg_quote('<!doctype html><html lang="en"><head><meta charset="utf-8" /><title>Testing</title></head><body><div id="id-000">Master Div</div></body></html>', '/');
+        $regex = strtr($regex, ['000' => '(\d+)']);
+        $pregMatch = preg_match("/$regex/", $output, $matches);
+        $this->assertSame(1, $pregMatch);
+    }
+
+    public function test_placeholder_and_id(): void
+    {
+        $model = new ViewModel();
+        $model->title = 'Original';
+        $output = View::render(ChildViewThree::class, $model);
+        $output = str_replace("\r", '', $output);
+        $output = str_replace("\n", '', $output);
+        $output = preg_replace('/\\s{2,}/', '', $output);
+        $regex = preg_quote('<!doctype html><html lang="en"><head><meta charset="utf-8" /><title>Modified</title></head><body><div id="id-000">Child Div</div><div id="id-000">Master Div</div></body></html>', '/');
+        $regex = strtr($regex, ['000' => '(\d+)']);
+        assert(is_string($output));
+        $pregMatch = preg_match("/$regex/", $output, $matches);
+        $this->assertSame(1, $pregMatch);
+        $this->assertTrue($matches[1] !== $matches[2]);
     }
 }
