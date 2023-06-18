@@ -3,13 +3,13 @@ A naive PHP template library. Version 2 is a complete rewrite.
 
 ## How to use
 
-Extend `Manychois\Views\View` and define your template in `body()` function.
+Extend `Manychois\Views\AbstractView` and define your template in `body()` function.
 Use `$this->inner()` or `$this->region()` to set where you would like child content to be injected.
 For child template, override `getParentViewClass()` to inform this library its parent class name.
 
-Then you can use `View::render($templateClassName, $viewData)` for rendering.
+Then you can use `AbstractView::render($templateClassName, $viewData)` for rendering.
 
-The `tests/` folder contains some example usages of `View`.
+The `tests/` folder contains some example usages of `AbstractView`.
 
 ### Utility
 

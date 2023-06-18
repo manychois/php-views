@@ -36,6 +36,7 @@ class ResourceLibrary
      * Find the first resource that matches the predicate.
      *
      * @param Closure $predicate Function that takes a resource key and value and returns true if it matches.
+     *
      * @return string|null The resource key or null if not found.
      */
     public function peek(Closure $predicate): ?string
@@ -52,6 +53,7 @@ class ResourceLibrary
      * Returns a list of resource values based on the given key and its dependencies.
      *
      * @param string $key The resource key.
+     *
      * @return array<string, T> The list of resource values.
      */
     public function pull(string $key): array
@@ -76,9 +78,10 @@ class ResourceLibrary
     /**
      * Push a resource into the library.
      *
-     * @param string $key The resource key.
-     * @param mixed $value The resource value.
+     * @param string        $key          The resource key.
+     * @param mixed         $value        The resource value.
      * @param array<string> $dependencies The list of resource keys that this resource depends on.
+     *
      * @return bool True if the resource is successfully pushed, false if the resource already exists, or if it has been
      * released.
      */
@@ -99,6 +102,7 @@ class ResourceLibrary
      * Remove a resource from the library.
      *
      * @param string $key The resource key.
+     *
      * @return bool True if the resource is successfully removed, false if the resource does not exist, or if it has
      * been released.
      */
@@ -117,6 +121,7 @@ class ResourceLibrary
      * Only resources that have not been released will be returned.
      *
      * @param string $key The resource key.
+     *
      * @return array<string> The list of resource keys.
      */
     private function getUnreleasedDependencies(string $key): array
@@ -124,7 +129,9 @@ class ResourceLibrary
         $deps = array_diff($this->dependencies[$key], $this->released);
         $missing = array_diff($deps, array_keys($this->resources));
         if ($missing) {
-            throw new OutOfRangeException('Undefined resource dependencies found: ' . implode(', ', $missing));
+            throw new OutOfRangeException(
+                sprintf('Undefined resource dependencies found: %s', implode(', ', $missing)),
+            );
         }
         return $deps;
     }
@@ -133,8 +140,9 @@ class ResourceLibrary
      * Returns a list of resource keys based on the given key and its all dependencies.
      * Only resources that have not been released will be returned.
      *
-     * @param string $key The resource key.
+     * @param string        $key      The resource key.
      * @param array<string> $depCheck The list of resource keys that are being checked for circular dependencies.
+     *
      * @return array<string> The list of resource keys.
      */
     private function resolve(string $key, array $depCheck = []): array
@@ -148,7 +156,7 @@ class ResourceLibrary
         foreach ($deps as $dep) {
             if (in_array($dep, $depCheck, true)) {
                 $depChain = array_merge([$dep, $key], $depCheck);
-                throw new Exception('Circular dependency detected: ' . implode(' < ', $depChain));
+                throw new Exception(sprintf('Circular dependency detected: %s', implode(' < ', $depChain)));
             }
             $temp = $this->resolve($dep, array_merge([$key], $depCheck));
             $resolvedDeps = array_merge($resolvedDeps, $temp);

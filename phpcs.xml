@@ -5,17 +5,23 @@
   <file>./tests</file>
   <arg name="extensions" value="php" />
   <arg name="colors" />
-  <rule ref="PSR12" />
-  <rule ref="Generic.Files.LineLength.TooLong">
+  <rule ref="Generic.Files.LineLength">
     <exclude-pattern>tests</exclude-pattern>
+    <properties>
+      <property name="lineLimit" value="120" />
+      <property name="absoluteLineLimit" value="0" />
+    </properties>
   </rule>
   <rule ref="PSR1.Methods.CamelCapsMethodName.NotCamelCaps">
     <exclude-pattern>tests</exclude-pattern>
   </rule>
+  <rule ref="PSR12" />
   <rule ref="SlevomatCodingStandard">
     <exclude name="SlevomatCodingStandard.Classes.EmptyLinesAroundClassBraces" />
     <exclude name="SlevomatCodingStandard.Classes.ForbiddenPublicProperty" />
     <exclude name="SlevomatCodingStandard.Classes.RequireAbstractOrFinal" />
+    <exclude name="SlevomatCodingStandard.Classes.SuperfluousAbstractClassNaming" />
+    <exclude name="SlevomatCodingStandard.Commenting.DocCommentSpacing" />
     <exclude name="SlevomatCodingStandard.Commenting.RequireOneLineDocComment" />
     <exclude name="SlevomatCodingStandard.Commenting.RequireOneLinePropertyDocComment" />
     <exclude name="SlevomatCodingStandard.ControlStructures.BlockControlStructureSpacing" />
@@ -38,6 +44,7 @@
     <exclude name="SlevomatCodingStandard.Operators.RequireOnlyStandaloneIncrementAndDecrementOperators" />
     <exclude name="SlevomatCodingStandard.PHP.DisallowReference" />
     <exclude name="SlevomatCodingStandard.TypeHints.DisallowMixedTypeHint" />
+    <exclude name="SlevomatCodingStandard.Whitespaces.DuplicateSpaces" />
   </rule>
   <rule ref="SlevomatCodingStandard.Classes.ClassStructure">
     <properties>
@@ -87,7 +94,7 @@
       </property>
     </properties>
   </rule>
-  <rule ref="SlevomatCodingStandard.Files.LineLength.LineTooLong">
+  <rule ref="SlevomatCodingStandard.Files.LineLength">
     <exclude-pattern>tests</exclude-pattern>
   </rule>
   <rule ref="SlevomatCodingStandard.Files.TypeNameMatchesFileName">
@@ -102,5 +109,19 @@
     <properties>
       <property name="spacesCountAroundEqualsSign" type="int" value="0" />
     </properties>
+  </rule>
+  <rule ref="Symfony">
+    <exclude name="Generic.Files.LineLength" />
+    <exclude name="PEAR.Commenting.InlineComment" />
+    <exclude name="Squiz.Strings.ConcatenationSpacing" />
+    <exclude name="Symfony.Commenting.License" />
+    <exclude name="Symfony.Formatting.BlankLineBeforeReturn" />
+    <exclude name="Symfony.Commenting.FunctionComment.MissingReturn" />
+  </rule>
+  <rule ref="Symfony.Commenting.ClassComment">
+    <exclude-pattern>tests</exclude-pattern>
+  </rule>
+  <rule ref="Symfony.Commenting.FunctionComment">
+    <exclude-pattern>tests</exclude-pattern>
   </rule>
 </ruleset>

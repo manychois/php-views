@@ -12,9 +12,9 @@ class Esc
     /**
      * Escape string for HTML attribute value.
      *
-     * @param string $text String to escape.
-     * @param bool $unquoted Set true if the attribute value will not be enclosed by quotes. In that case, whitespace
-     *                       characters will be escaped.
+     * @param string $text     String to escape.
+     * @param bool   $unquoted Set true if the attribute value will not be enclosed by quotes. In that case, whitespace
+     *                         characters will be escaped.
      */
     public function attr(string $text, bool $unquoted = false): string
     {
@@ -59,8 +59,8 @@ class Esc
     /**
      * Escape string for JavaScript.
      *
-     * @param string $text String to escape.
-     * @param bool $templateMode Set true if the string is to be used as a template literal.
+     * @param string $text         String to escape.
+     * @param bool   $templateMode Set true if the string is to be used as a template literal.
      */
     public function js(string $text, bool $templateMode = false): string
     {
