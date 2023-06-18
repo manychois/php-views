@@ -15,6 +15,7 @@ abstract class AbstractView
 
     /**
      * Renders the child main content (i.e. its render() output), if any.
+     *
      * @return string The output of render() of the child view.
      */
     abstract public function body(): string;
