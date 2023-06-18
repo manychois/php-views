@@ -12,6 +12,7 @@ use OutOfRangeException;
 
 /**
  * Supports dependency management of related resources.
+ *
  * @template T
  */
 class ResourceLibrary
@@ -20,10 +21,12 @@ class ResourceLibrary
      * @var Array<string, T>
      */
     private array $resources = [];
+
     /**
      * @var Array<string, Array<string>>
      */
     private array $dependencies = [];
+
     /**
      * @var Array<string>
      */
@@ -31,8 +34,9 @@ class ResourceLibrary
 
     /**
      * Find the first resource that matches the predicate.
+     *
      * @param Closure $predicate Function that takes a resource key and value and returns true if it matches.
-     * @return null|string The resource key or null if not found.
+     * @return string|null The resource key or null if not found.
      */
     public function peek(Closure $predicate): ?string
     {
@@ -46,6 +50,7 @@ class ResourceLibrary
 
     /**
      * Returns a list of resource values based on the given key and its dependencies.
+     *
      * @param string $key The resource key.
      * @return array<string, T> The list of resource values.
      */
@@ -62,7 +67,7 @@ class ResourceLibrary
             }
             return $result;
         }
-        if (in_array($key, $this->released)) {
+        if (in_array($key, $this->released, true)) {
             return [];
         }
         throw new OutOfBoundsException("Undefined resource found: $key");
@@ -70,6 +75,7 @@ class ResourceLibrary
 
     /**
      * Push a resource into the library.
+     *
      * @param string $key The resource key.
      * @param mixed $value The resource value.
      * @param array<string> $dependencies The list of resource keys that this resource depends on.
@@ -78,10 +84,10 @@ class ResourceLibrary
      */
     public function push(string $key, mixed $value, array $dependencies = []): bool
     {
-        if (array_key_exists($key, $this->resources) || in_array($key, $this->released)) {
+        if (array_key_exists($key, $this->resources) || in_array($key, $this->released, true)) {
             return false;
         }
-        if (in_array($key, $dependencies)) {
+        if (in_array($key, $dependencies, true)) {
             throw new InvalidArgumentException("Resource $key cannot depend on itself.");
         }
         $this->resources[$key] = $value;
@@ -91,6 +97,7 @@ class ResourceLibrary
 
     /**
      * Remove a resource from the library.
+     *
      * @param string $key The resource key.
      * @return bool True if the resource is successfully removed, false if the resource does not exist, or if it has
      * been released.
@@ -108,6 +115,7 @@ class ResourceLibrary
     /**
      * Returns a list of resource keys based on the given key and its immediate dependencies.
      * Only resources that have not been released will be returned.
+     *
      * @param string $key The resource key.
      * @return array<string> The list of resource keys.
      */
@@ -124,51 +132,27 @@ class ResourceLibrary
     /**
      * Returns a list of resource keys based on the given key and its all dependencies.
      * Only resources that have not been released will be returned.
+     *
      * @param string $key The resource key.
+     * @param array<string> $depCheck The list of resource keys that are being checked for circular dependencies.
      * @return array<string> The list of resource keys.
      */
-    private function resolve(string $key): array
+    private function resolve(string $key, array $depCheck = []): array
     {
         $deps = $this->getUnreleasedDependencies($key);
         if (empty($deps)) {
             return [$key];
         }
 
-        $toVisit = $deps;
-        $visited = [$key];
-        $chains = [array_merge($toVisit, [$key])];
-        while ($toVisit) {
-            $candidate = array_shift($toVisit);
-            $visited[] = $candidate;
-            $deps = $this->getUnreleasedDependencies($candidate);
-            if ($deps) {
-                foreach ($chains as &$chain) {
-                    $i = array_search($candidate, $chain, true);
-                    if (!is_int($i)) {
-                        continue;
-                    }
-                    foreach ($deps as $d) {
-                        $j = array_search($d, $chain, true);
-                        if (is_int($j)) {
-                            if ($j + 1 === count($chain)) {
-                                throw new Exception(
-                                    'Circular dependency detected: ' . implode(' < ', array_merge([$d], $chain))
-                                );
-                            } elseif ($j > $i) {
-                                array_splice($chain, $j, 1);
-                                array_splice($chain, $i, 0, [$d]);
-                            }
-                        } else {
-                            array_splice($chain, $i, 0, [$d]);
-                        }
-                    }
-                }
-                $chains[] = array_merge($deps, [$candidate]);
-                $toVisit = array_merge($toVisit, array_diff($deps, $visited, $toVisit));
-            } else {
-                $chains[] = [$candidate];
+        $resolvedDeps = [];
+        foreach ($deps as $dep) {
+            if (in_array($dep, $depCheck, true)) {
+                $depChain = array_merge([$dep, $key], $depCheck);
+                throw new Exception('Circular dependency detected: ' . implode(' < ', $depChain));
             }
+            $temp = $this->resolve($dep, array_merge([$key], $depCheck));
+            $resolvedDeps = array_merge($resolvedDeps, $temp);
         }
-        return $chains[0];
+        return array_unique(array_merge($resolvedDeps, [$key]));
     }
 }

@@ -54,7 +54,10 @@ class ViewTest extends TestCase
         $output = str_replace("\n", '', $output);
         $output = preg_replace('/\\s{2,}/', '', $output);
         assert(is_string($output));
-        $regex = preg_quote('<!doctype html><html lang="en"><head><meta charset="utf-8" /><title>Testing</title></head><body><div id="id-000">Master Div</div></body></html>', '/');
+        $regex = preg_quote(
+            '<!doctype html><html lang="en"><head><meta charset="utf-8" /><title>Testing</title></head><body><div id="id-000">Master Div</div></body></html>',
+            '/',
+        );
         $regex = strtr($regex, ['000' => '(\d+)']);
         $pregMatch = preg_match("/$regex/", $output, $matches);
         $this->assertSame(1, $pregMatch);
@@ -68,7 +71,10 @@ class ViewTest extends TestCase
         $output = str_replace("\r", '', $output);
         $output = str_replace("\n", '', $output);
         $output = preg_replace('/\\s{2,}/', '', $output);
-        $regex = preg_quote('<!doctype html><html lang="en"><head><meta charset="utf-8" /><title>Modified</title></head><body><div id="id-000">Child Div</div><div id="id-000">Master Div</div></body></html>', '/');
+        $regex = preg_quote(
+            '<!doctype html><html lang="en"><head><meta charset="utf-8" /><title>Modified</title></head><body><div id="id-000">Child Div</div><div id="id-000">Master Div</div></body></html>',
+            '/',
+        );
         $regex = strtr($regex, ['000' => '(\d+)']);
         assert(is_string($output));
         $pregMatch = preg_match("/$regex/", $output, $matches);

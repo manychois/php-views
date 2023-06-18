@@ -10,22 +10,25 @@ namespace Manychois\Views;
 abstract class View
 {
     private static int $idCounter = 0;
-    private ?View $childView = null;
     protected mixed $viewData = null;
+    private ?self $childView = null;
+
+    abstract public function body(): string;
 
     /**
      * Returns the View content along with its ancestor views.
+     *
      * @param string $class The class name of the view.
      * @param mixed $data The data to be passed to the view.
      */
     final public static function render(string $class, mixed $data): string
     {
         $topView = new $class();
-        assert($topView instanceof View);
+        assert($topView instanceof self);
         $p = $topView->getParentViewClass();
         while ($p) {
             $parent = new $p();
-            assert($parent instanceof View);
+            assert($parent instanceof self);
             $parent->childView = $topView;
             $topView = $parent;
             $p = $topView->getParentViewClass();
@@ -34,8 +37,19 @@ abstract class View
         return $topView->body();
     }
 
+    public function getParentViewClass(): string
+    {
+        return '';
+    }
+
+    final public function getChildView(): ?self
+    {
+        return $this->childView;
+    }
+
     /**
      * Returns a unique id value.
+     *
      * @param string $prefix The prefix of the id.
      */
     final protected function createId(string $prefix = 'id-'): string
@@ -48,7 +62,7 @@ abstract class View
      */
     final protected function createPlaceholder(): string
     {
-        return '[Pl@ceH0lder' . random_int(0, 999999) . '}';
+        return '[Pl@ceH0lder' . random_int(0, 999_999) . '}';
     }
 
     /**
@@ -68,6 +82,7 @@ abstract class View
 
     /**
      * Returns the content of its child view, or empty if there is no child view.
+     *
      * @param string $label The label of the region. The parent view will call the child view's render$label method.
      * @return string The content of the region.
      */
@@ -87,16 +102,4 @@ abstract class View
         }
         return '';
     }
-
-    final public function getChildView(): ?View
-    {
-        return $this->childView;
-    }
-
-    public function getParentViewClass(): string
-    {
-        return '';
-    }
-
-    abstract public function body(): string;
 }

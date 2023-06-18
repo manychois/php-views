@@ -10,15 +10,6 @@ use PHPUnit\Framework\TestCase;
 class EscTest extends TestCase
 {
     /**
-     * @dataProvider data_attr
-     */
-    public function test_attr(string $expected, string $html, bool $unquoted): void
-    {
-        $e = new Esc();
-        $this->assertSame($expected, $e->attr($html, $unquoted));
-    }
-
-    /**
      * @return array<array<string|bool>>
      */
     public static function data_attr(): array
@@ -33,21 +24,6 @@ class EscTest extends TestCase
         ];
     }
 
-    public function test_css(): void
-    {
-        $e = new Esc();
-        $this->assertSame('a\\\\b', $e->css('a\b'));
-    }
-
-    /**
-     * @dataProvider data_html
-     */
-    public function test_html(string $expected, string $html): void
-    {
-        $e = new Esc();
-        $this->assertSame($expected, $e->html($html));
-    }
-
     /**
      * @return array<array<string>>
      */
@@ -60,15 +36,6 @@ class EscTest extends TestCase
             ['It\'s good', 'It\'s good'],
             ['"quote"', '"quote"'],
         ];
-    }
-
-    /**
-     * @dataProvider data_js
-     */
-    public function test_js(string $expected, string $text, bool $templateMode): void
-    {
-        $e = new Esc();
-        $this->assertSame($expected, $e->js($text, $templateMode));
     }
 
     /**
@@ -87,15 +54,6 @@ class EscTest extends TestCase
     }
 
     /**
-     * @dataProvider data_url
-     */
-    public function test_url(string $expected, string $text): void
-    {
-        $e = new Esc();
-        $this->assertSame($expected, $e->url($text));
-    }
-
-    /**
      * @return array<array<string>>
      */
     public static function data_url(): array
@@ -106,5 +64,47 @@ class EscTest extends TestCase
             ['99%25', '99%'],
             ['1%2C2', '1,2'],
         ];
+    }
+
+    /**
+     * @dataProvider data_attr
+     */
+    public function test_attr(string $expected, string $html, bool $unquoted): void
+    {
+        $e = new Esc();
+        $this->assertSame($expected, $e->attr($html, $unquoted));
+    }
+
+    public function test_css(): void
+    {
+        $e = new Esc();
+        $this->assertSame('a\\\\b', $e->css('a\b'));
+    }
+
+    /**
+     * @dataProvider data_html
+     */
+    public function test_html(string $expected, string $html): void
+    {
+        $e = new Esc();
+        $this->assertSame($expected, $e->html($html));
+    }
+
+    /**
+     * @dataProvider data_js
+     */
+    public function test_js(string $expected, string $text, bool $templateMode): void
+    {
+        $e = new Esc();
+        $this->assertSame($expected, $e->js($text, $templateMode));
+    }
+
+    /**
+     * @dataProvider data_url
+     */
+    public function test_url(string $expected, string $text): void
+    {
+        $e = new Esc();
+        $this->assertSame($expected, $e->url($text));
     }
 }
