@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Manychois\Views\Tests;
 
-use Manychois\Views\View;
+use Manychois\Views\AbstractView;
 use PHPUnit\Framework\TestCase;
 
 class ViewTest extends TestCase
@@ -13,7 +13,7 @@ class ViewTest extends TestCase
     {
         $model = new ViewModel();
         $model->title = 'Testing';
-        $output = View::render(ChildViewOne::class, $model);
+        $output = AbstractView::render(ChildViewOne::class, $model);
         $output = str_replace("\r", '', $output);
         $output = str_replace("\n", '', $output);
         $output = preg_replace('/\\s{2,}/', '', $output);
@@ -25,7 +25,7 @@ class ViewTest extends TestCase
     {
         $model = new ViewModel();
         $model->title = 'Testing';
-        $output = View::render(ChildViewTwo::class, $model);
+        $output = AbstractView::render(ChildViewTwo::class, $model);
         $output = str_replace("\r", '', $output);
         $output = str_replace("\n", '', $output);
         $output = preg_replace('/\\s{2,}/', '', $output);
@@ -37,7 +37,7 @@ class ViewTest extends TestCase
     {
         $model = new ViewModel();
         $model->title = 'Testing';
-        $output = View::render(MasterViewOne::class, $model);
+        $output = AbstractView::render(MasterViewOne::class, $model);
         $output = str_replace("\r", '', $output);
         $output = str_replace("\n", '', $output);
         $output = preg_replace('/\\s{2,}/', '', $output);
@@ -49,12 +49,15 @@ class ViewTest extends TestCase
     {
         $model = new ViewModel();
         $model->title = 'Testing';
-        $output = View::render(MasterViewTwo::class, $model);
+        $output = AbstractView::render(MasterViewTwo::class, $model);
         $output = str_replace("\r", '', $output);
         $output = str_replace("\n", '', $output);
         $output = preg_replace('/\\s{2,}/', '', $output);
         assert(is_string($output));
-        $regex = preg_quote('<!doctype html><html lang="en"><head><meta charset="utf-8" /><title>Testing</title></head><body><div id="id-000">Master Div</div></body></html>', '/');
+        $regex = preg_quote(
+            '<!doctype html><html lang="en"><head><meta charset="utf-8" /><title>Testing</title></head><body><div id="id-000">Master Div</div></body></html>',
+            '/',
+        );
         $regex = strtr($regex, ['000' => '(\d+)']);
         $pregMatch = preg_match("/$regex/", $output, $matches);
         $this->assertSame(1, $pregMatch);
@@ -64,11 +67,14 @@ class ViewTest extends TestCase
     {
         $model = new ViewModel();
         $model->title = 'Original';
-        $output = View::render(ChildViewThree::class, $model);
+        $output = AbstractView::render(ChildViewThree::class, $model);
         $output = str_replace("\r", '', $output);
         $output = str_replace("\n", '', $output);
         $output = preg_replace('/\\s{2,}/', '', $output);
-        $regex = preg_quote('<!doctype html><html lang="en"><head><meta charset="utf-8" /><title>Modified</title></head><body><div id="id-000">Child Div</div><div id="id-000">Master Div</div></body></html>', '/');
+        $regex = preg_quote(
+            '<!doctype html><html lang="en"><head><meta charset="utf-8" /><title>Modified</title></head><body><div id="id-000">Child Div</div><div id="id-000">Master Div</div></body></html>',
+            '/',
+        );
         $regex = strtr($regex, ['000' => '(\d+)']);
         assert(is_string($output));
         $pregMatch = preg_match("/$regex/", $output, $matches);

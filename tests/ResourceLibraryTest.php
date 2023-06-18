@@ -14,9 +14,9 @@ class ResourceLibraryTest extends TestCase
         $r = new ResourceLibrary();
         $r->push('a', '<link rel="stylesheet" type="text/css" href="a.css" />');
         $r->push('b', '<link rel="stylesheet" type="text/css" href="b.css" />');
-        $found = $r->peek(fn ($key, $value) => strpos($value, 'b.css') !== false);
+        $found = $r->peek(static fn ($key, $value) => strpos($value, 'b.css') !== false);
         $this->assertSame('b', $found);
-        $found = $r->peek(fn ($key, $value) => strpos($value, 'c.css') !== false);
+        $found = $r->peek(static fn ($key, $value) => strpos($value, 'c.css') !== false);
         $this->assertNull($found);
     }
 

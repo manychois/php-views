@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace Manychois\Views\Tests;
 
-use Manychois\Views\View;
+use Manychois\Views\AbstractView;
 
-class ChildViewThree extends View
+class ChildViewThree extends AbstractView
 {
     public function getParentViewClass(): string
     {
         return MasterViewTwo::class;
     }
 
-    #region Manychois\Views\View Members
+    #region Manychois\Views\AbstractView Members
 
     public function body(): string
     {
