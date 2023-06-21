@@ -120,9 +120,10 @@
     <exclude name="Generic.Files.LineLength.TooLong" />
     <exclude name="PEAR.Commenting.InlineComment.WrongStyle" />
     <exclude name="Squiz.Strings.ConcatenationSpacing.PaddingFound" />
-    <exclude name="Symfony.Commenting.License.Warning" />
-    <exclude name="Symfony.Formatting.BlankLineBeforeReturn.MissedBlankLineBeforeReturn" />
     <exclude name="Symfony.Commenting.FunctionComment.MissingReturn" />
+    <exclude name="Symfony.Commenting.License.Warning" />
+    <exclude name="Symfony.ControlStructure.YodaConditions.Invalid" />
+    <exclude name="Symfony.Formatting.BlankLineBeforeReturn.MissedBlankLineBeforeReturn" />
   </rule>
   <rule ref="Symfony.Commenting.ClassComment">
     <exclude-pattern>tests</exclude-pattern>
