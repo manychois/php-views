@@ -10,21 +10,16 @@ namespace Manychois\Views;
 abstract class AbstractTextView
 {
     private static int $idCounter = 0;
-    /**
-     * The data to be used in the view.
-     *
-     * @var array<string,mixed>
-     */
-    protected array $viewData;
+    protected readonly ViewData $viewData;
     private ?self $parent = null;
     private ?self $child = null;
 
     /**
      * Creates a new instance of AbstractView.
      *
-     * @param array<string,mixed> $viewData The data to be used in the view.
+     * @param ViewData $viewData The data to be used in the view.
      */
-    public function __construct(array $viewData)
+    public function __construct(ViewData $viewData)
     {
         $this->viewData = $viewData;
     }
