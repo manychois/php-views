@@ -139,14 +139,14 @@ $normalTemplate = <<<'PHP'
 /**
  * Create %2$s `<%1$s>` element.
  *
- * @param array<string,null|bool|string>                               $attrs The attributes.
+ * @param array<string,bool|string|null>                               $attrs The attributes.
  * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
  *
  * @return \DOMElement The created `<%1$s>` element.
  */
-public static function %1$s(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
+public function %1$s(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
 {
-    return self::element('%1$s', $attrs, $inner);
+    return $this->element('%1$s', $attrs, $inner);
 }
 PHP;
 
@@ -154,13 +154,13 @@ $voidTemplate = <<<'PHP'
 /**
  * Create %2$s `<%1$s>` element.
  *
- * @param array<string,null|bool|string> $attrs The attributes.
+ * @param array<string,bool|string|null> $attrs The attributes.
  *
  * @return \DOMElement The created `<%1$s>` element.
  */
-public static function %1$s(array $attrs = []): \DOMElement
+public function %1$s(array $attrs = []): \DOMElement
 {
-    return self::element('%1$s', $attrs);
+    return $this->element('%1$s', $attrs);
 }
 PHP;
 

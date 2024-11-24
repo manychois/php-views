@@ -10,18 +10,21 @@ namespace Manychois\Views;
 abstract class AbstractDomView
 {
     private static int $idCounter = 0;
-    protected readonly ViewDataMap $viewData;
+    /**
+     * @var ViewDataMap The data shared between parent and child views.
+     */
+    protected readonly ViewDataMap $data;
     private ?self $parent = null;
     private ?self $child = null;
 
     /**
      * Creates a new instance of AbstractView.
      *
-     * @param ViewDataMap $viewData The data to be used in the view.
+     * @param ViewDataMap $data The data shared between parent and child views.
      */
-    public function __construct(ViewDataMap $viewData)
+    public function __construct(ViewDataMap $data)
     {
-        $this->viewData = $viewData;
+        $this->data = $data;
     }
 
     /**
