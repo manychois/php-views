@@ -13,8 +13,8 @@
     "template"
   ],
   "require": {
-    "php": ">=8.2",
-    "manychois/simdom": "dev-implement-v0.3"
+    "php": ">=8.4",
+    "ext-dom": "*"
   },
   "require-dev": {
     "escapestudios/symfony2-coding-standard": "^3.15",
@@ -52,7 +52,8 @@
   },
   "config": {
     "allow-plugins": {
-      "dealerdirect/phpcodesniffer-composer-installer": true
+      "dealerdirect/phpcodesniffer-composer-installer": true,
+      "phpstan/extension-installer": true
     }
   }
 }

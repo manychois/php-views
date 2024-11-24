@@ -7,7 +7,7 @@ namespace Manychois\Views;
 /**
  * Holds the data to be used in the view.
  */
-class ViewData
+class ViewDataMap
 {
     /**
      * @var array<string,mixed>
@@ -15,12 +15,16 @@ class ViewData
     private array $internal;
 
     /**
-     * Creates a new instance of ViewData.
+     * Creates a new instance of ViewDataMap.
      *
      * @param array<string,mixed> $data The data to be used in the view.
      */
     public function __construct(array $data)
     {
+        if (\array_is_list($data) && \count($data) > 0) {
+            throw new \TypeError('Data must be an associative array.');
+        }
+
         $this->internal = $data;
     }
 
@@ -124,16 +128,16 @@ class ViewData
     }
 
     /**
-     * Returns the value of the specified key as an iterable of objects.
+     * Returns the value of the specified key as a list of objects.
      *
      * @template T of object
      *
      * @param string          $key   The key of the value to return.
-     * @param class-string<T> $class The class of the objects in the array.
+     * @param class-string<T> $class The class of the objects in the list.
      *
-     * @return \Generator<int,T> The value of the specified key as an iterable of objects.
+     * @return \Generator<int,T> The value of the specified key as a list of objects.
      */
-    public function getObjectList(string $key, string $class): \Generator
+    public function getListOfObjects(string $key, string $class): \Generator
     {
         $value = $this->internal[$key] ?? null;
         if (!\is_iterable($value)) {
@@ -147,6 +151,26 @@ class ViewData
 
             yield $item;
         }
+    }
+
+    /**
+     * Returns the value of the specified key as the specified object.
+     *
+     * @template T of object
+     *
+     * @param string          $key   The key of the value to return.
+     * @param class-string<T> $class The class of the object.
+     *
+     * @return T The value of the specified key as the specified object.
+     */
+    public function getObject(string $key, string $class): mixed
+    {
+        $value = $this->internal[$key] ?? null;
+        if ($value instanceof $class) {
+            return $value;
+        }
+
+        throw new \TypeError(\sprintf('Invalid type. Expected %s, found %s.', $class, \get_debug_type($value)));
     }
 
     /**
@@ -195,5 +219,37 @@ class ViewData
     public function set(string $key, mixed $value): void
     {
         $this->internal[$key] = $value;
+    }
+
+    /**
+     * Returns the value of the specified key as a ViewDataMap.
+     * If the key does not exist, a new ViewDataMap is created and set as the value.
+     * If the value is originally an associative array, it is converted to a ViewDataMap.
+     *
+     * @param string $key The key of the value to return.
+     *
+     * @return self The value of the specified key as a ViewDataMap.
+     */
+    public function to(string $key): self
+    {
+        $value = $this->internal[$key] ?? null;
+        if ($value instanceof self) {
+            return $value;
+        }
+
+        if ($value === null) {
+            $map = new self([]);
+        } elseif (\is_array($value)) {
+            // @phpstan-ignore argument.type
+            $map = new self($value);
+        } else {
+            throw new \TypeError(
+                \sprintf('Invalid type. Expected %s, Found %s.', self::class, \get_debug_type($value))
+            );
+        }
+
+        $this->set($key, $map);
+
+        return $map;
     }
 }
