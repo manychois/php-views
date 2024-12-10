@@ -33,7 +33,7 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "Manychois\\Views\\Tests\\": "tests/"
+      "Manychois\\ViewTests\\UnitTests\\": "tests/unit-tests/"
     }
   },
   "scripts": {

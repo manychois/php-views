@@ -140,7 +140,7 @@
     <properties>
       <property name="rootNamespaces" type="array">
         <element key="src" value="Manychois\Views" />
-        <element key="tests/unit-tests" value="Manychois\Views\UnitTests" />
+        <element key="tests/unit-tests" value="Manychois\ViewTests\UnitTests" />
       </property>
     </properties>
   </rule>

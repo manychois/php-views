@@ -6,34 +6,58 @@ namespace Manychois\Views;
 
 /**
  * Base class for building view template composited of DOM nodes.
+ *
+ * @phpstan-type ContentClosure \Closure(self):string|\DOMNode|iterable<string|\DOMNode|null>|null
+ * @phpstan-type Content string|\DOMNode|iterable<string|\DOMNode|null>|ContentClosure|null
  */
 abstract class AbstractDomView
 {
     private static int $idCounter = 0;
     /**
-     * @var ViewDataMap The data shared between parent and child views.
+     * @var ViewData The data shared between parent and child views.
      */
-    protected readonly ViewDataMap $data;
+    protected readonly ViewData $data;
     private ?self $parent = null;
     private ?self $child = null;
 
     /**
      * Creates a new instance of AbstractView.
      *
-     * @param ViewDataMap $data The data shared between parent and child views.
+     * @param ViewData $data The data shared between parent and child views.
      */
-    public function __construct(ViewDataMap $data)
+    public function __construct(ViewData $data)
     {
         $this->data = $data;
     }
 
     /**
+     * Returns the parent view of this view.
+     *
+     * @return AbstractDomView|null The parent view of this view, or null if this view has no parent.
+     */
+    final public function getParent(): ?self
+    {
+        return $this->parent;
+    }
+
+    /**
+     * Returns the child view of this view.
+     *
+     * @return AbstractDomView|null The child view of this view, or null if this view has no child.
+     */
+    final public function getChild(): ?self
+    {
+        return $this->child;
+    }
+
+    /**
      * Returns the main content of the child view, if any.
      *
-     * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $default The default content to return if the
-     *                                                                              child view does not exist.
+     * @param mixed $default The default content to return if the child view does not exist.
      *
      * @return \Generator<int,string|\DOMNode|null> The main content of the child view.
+     *
+     * @phpstan-param Content $default
      */
     final public function content(string|\DOMNode|iterable|\Closure|null $default = null): \Generator
     {
@@ -47,14 +71,15 @@ abstract class AbstractDomView
     /**
      * Returns the content of the specified region provided by the child view, if any.
      *
-     * @param string                                                       $name    The name of the region.
-     * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $default The default content to return if the
-     *                                                                              region does not exist,
-     *                                                                              or if the child view does not exist.
+     * @param string $name    The name of the region.
+     * @param mixed  $default The default content to return if the region does not exist, or
+     *                        if the child view does not exist.
      *
      * @return \Generator<int,string|\DOMNode|null> The content of the specified region.
+     *
+     * @phpstan-param Content $default
      */
-    final public function region(string $name, string|\DOMNode|iterable|\Closure|null $default = []): \Generator
+    final public function region(string $name, string|\DOMNode|iterable|\Closure|null $default = null): \Generator
     {
         if ($this->child === null) {
             yield from $this->resolveDefault($default);
@@ -122,13 +147,15 @@ abstract class AbstractDomView
     /**
      * Resolves the default content into an iterable of nodes.
      *
-     * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $default The default content.
+     * @param mixed $default The default content.
      *
      * @return \Generator<int,string|\DOMNode> The resolved content.
+     *
+     * @phpstan-param Content $default
      */
     private function resolveDefault(string|\DOMNode|iterable|\Closure|null $default): \Generator
     {
-        $resolved = $default instanceof \Closure ? $default() : $default;
+        $resolved = $default instanceof \Closure ? $default($this) : $default;
         if (\is_iterable($resolved)) {
             foreach ($resolved as $child) {
                 if ($child === null) {

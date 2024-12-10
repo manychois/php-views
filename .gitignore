@@ -1,7 +1,7 @@
 /.idea
 /.phpunit.cache
 /.vscode
-/coverage-html
+/coverage
 /vendor/
 
 .phpunit.result.cache
