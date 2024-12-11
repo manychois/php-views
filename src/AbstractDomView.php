@@ -7,8 +7,9 @@ namespace Manychois\Views;
 /**
  * Base class for building view template composited of DOM nodes.
  *
- * @phpstan-type ContentClosure \Closure(self):string|\DOMNode|iterable<string|\DOMNode|null>|null
- * @phpstan-type Content string|\DOMNode|iterable<string|\DOMNode|null>|ContentClosure|null
+ * @phpstan-type SimpleContent string|\DOMNode|null
+ * @phpstan-type ContentClosure \Closure(self):SimpleContent|iterable<SimpleContent>
+ * @phpstan-type Content SimpleContent|iterable<SimpleContent>|ContentClosure
  */
 abstract class AbstractDomView
 {

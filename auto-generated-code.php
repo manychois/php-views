@@ -143,6 +143,8 @@ $normalTemplate = <<<'PHP'
  * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
  *
  * @return \DOMElement The created `<%1$s>` element.
+ *
+ * @phpstan-param Content $inner
  */
 public function %1$s(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
 {

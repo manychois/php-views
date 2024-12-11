@@ -6,11 +6,14 @@ namespace Manychois\Views;
 
 /**
  * Helper class for creating HTML nodes.
+ *
+ * @phpstan-type SimpleContent string|\DOMNode|null
+ * @phpstan-type ContentClosure \Closure(self):SimpleContent|iterable<SimpleContent>
+ * @phpstan-type Content SimpleContent|iterable<SimpleContent>|ContentClosure
+ * @phpstan-type CommentContent \Closure(self):string|iterable<string|null>|null
  */
 final class HtmlTagHelper
 {
-    public const NAMESPACE = 'http://www.w3.org/1999/xhtml';
-
     public readonly \DOMDocument $ownerDocument;
 
     /**
@@ -29,6 +32,8 @@ final class HtmlTagHelper
      * @param string|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMComment The created comment.
+     *
+     * @phpstan-param string|iterable<string|null>|CommentContent|null $inner
      */
     public function comment(string|iterable|\Closure|null $inner = null): \DOMComment
     {
@@ -43,14 +48,14 @@ final class HtmlTagHelper
                 }
 
                 if (!\is_string($item)) {
-                    throw new \InvalidArgumentException(\sprintf('Invalid object type: %s.', \get_debug_type($item)));
+                    throw new \TypeError(\sprintf('Invalid type: %s.', \get_debug_type($item)));
                 }
 
                 $concatenated .= $item;
             }
             $data = $concatenated;
         } elseif (!\is_string($data)) {
-            throw new \InvalidArgumentException(\sprintf('Invalid object type: %s.', \get_debug_type($data)));
+            throw new \TypeError(\sprintf('Invalid type: %s.', \get_debug_type($data)));
         }
 
         $comment = $this->ownerDocument->createComment($data);
@@ -67,13 +72,15 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created element.
+     *
+     * @phpstan-param Content $inner
      */
     public function element(
         string $tag,
         array $attrs = [],
         string|\DOMNode|iterable|\Closure|null $inner = null
     ): \DOMElement {
-        $element = $this->ownerDocument->createElementNS(self::NAMESPACE, $tag);
+        $element = $this->ownerDocument->createElement($tag);
         foreach ($attrs as $name => $value) {
             if ($value === null || $value === false) {
                 continue;
@@ -96,12 +103,14 @@ final class HtmlTagHelper
             } elseif ($item === null) {
                 continue;
             } else {
-                throw new \InvalidArgumentException(\sprintf('Invalid object type: %s.', \get_debug_type($item)));
+                throw new \TypeError(\sprintf('Invalid type: %s.', \get_debug_type($item)));
             }
         }
 
         return $element;
     }
+
+    // @codeCoverageIgnoreStart
 
     #region auto generated code
 
@@ -112,6 +121,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<a>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function a(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -125,6 +136,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<abbr>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function abbr(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -138,6 +151,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<address>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function address(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -163,6 +178,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<article>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function article(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -176,6 +193,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<aside>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function aside(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -189,6 +208,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<audio>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function audio(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -202,6 +223,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<b>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function b(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -227,6 +250,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<bdi>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function bdi(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -240,6 +265,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<bdo>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function bdo(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -253,6 +280,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<blockquote>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function blockquote(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -266,6 +295,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<body>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function body(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -291,6 +322,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<button>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function button(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -304,6 +337,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<canvas>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function canvas(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -317,6 +352,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<caption>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function caption(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -330,6 +367,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<cite>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function cite(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -343,6 +382,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<code>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function code(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -368,6 +409,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<colgroup>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function colgroup(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -381,6 +424,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<data>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function data(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -394,6 +439,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<datalist>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function datalist(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -407,6 +454,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<dd>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function dd(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -420,6 +469,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<del>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function del(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -433,6 +484,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<details>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function details(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -446,6 +499,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<dfn>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function dfn(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -459,6 +514,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<dialog>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function dialog(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -472,6 +529,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<div>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function div(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -485,6 +544,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<dl>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function dl(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -498,6 +559,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<dt>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function dt(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -511,6 +574,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<em>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function em(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -536,6 +601,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<fieldset>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function fieldset(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -549,6 +616,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<figcaption>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function figcaption(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -562,6 +631,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<figure>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function figure(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -575,6 +646,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<footer>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function footer(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -588,6 +661,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<form>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function form(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -601,6 +676,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<h1>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function h1(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -614,6 +691,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<h2>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function h2(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -627,6 +706,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<h3>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function h3(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -640,6 +721,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<h4>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function h4(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -653,6 +736,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<h5>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function h5(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -666,6 +751,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<h6>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function h6(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -679,6 +766,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<head>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function head(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -692,6 +781,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<header>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function header(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -717,6 +808,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<html>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function html(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -730,6 +823,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<i>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function i(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -743,6 +838,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<iframe>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function iframe(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -780,6 +877,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<ins>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function ins(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -793,6 +892,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<kbd>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function kbd(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -806,6 +907,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<label>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function label(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -819,6 +922,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<legend>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function legend(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -832,6 +937,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<li>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function li(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -857,6 +964,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<main>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function main(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -870,6 +979,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<map>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function map(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -883,6 +994,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<mark>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function mark(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -908,6 +1021,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<meter>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function meter(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -921,6 +1036,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<nav>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function nav(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -934,6 +1051,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<noscript>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function noscript(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -947,6 +1066,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<object>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function object(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -960,6 +1081,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<ol>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function ol(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -973,6 +1096,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<optgroup>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function optgroup(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -986,6 +1111,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<option>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function option(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -999,6 +1126,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<output>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function output(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -1012,6 +1141,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<p>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function p(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -1037,6 +1168,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<picture>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function picture(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -1050,6 +1183,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<pre>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function pre(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -1063,6 +1198,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<progress>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function progress(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -1076,6 +1213,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<q>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function q(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -1089,6 +1228,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<rp>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function rp(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -1102,6 +1243,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<rt>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function rt(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -1115,6 +1258,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<ruby>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function ruby(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -1128,6 +1273,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<s>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function s(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -1141,6 +1288,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<samp>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function samp(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -1154,6 +1303,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<script>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function script(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -1167,6 +1318,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<section>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function section(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -1180,6 +1333,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<select>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function select(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -1193,6 +1348,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<slot>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function slot(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -1206,6 +1363,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<small>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function small(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -1231,6 +1390,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<span>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function span(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -1244,6 +1405,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<strong>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function strong(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -1257,6 +1420,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<style>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function style(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -1270,6 +1435,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<sub>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function sub(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -1283,6 +1450,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<summary>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function summary(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -1296,6 +1465,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<sup>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function sup(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -1309,6 +1480,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<table>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function table(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -1322,6 +1495,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<tbody>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function tbody(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -1335,6 +1510,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<td>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function td(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -1348,6 +1525,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<template>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function template(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -1361,6 +1540,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<textarea>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function textarea(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -1374,6 +1555,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<tfoot>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function tfoot(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -1387,6 +1570,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<th>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function th(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -1400,6 +1585,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<thead>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function thead(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -1413,6 +1600,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<time>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function time(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -1426,6 +1615,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<title>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function title(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -1439,6 +1630,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<tr>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function tr(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -1464,6 +1657,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<u>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function u(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -1477,6 +1672,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<ul>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function ul(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -1490,6 +1687,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<var>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function var(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -1503,6 +1702,8 @@ final class HtmlTagHelper
      * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
      *
      * @return \DOMElement The created `<video>` element.
+     *
+     * @phpstan-param Content $inner
      */
     public function video(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
     {
@@ -1522,4 +1723,6 @@ final class HtmlTagHelper
     }
 
     #endregion auto generated code
+
+    // @codeCoverageIgnoreEnd
 }
