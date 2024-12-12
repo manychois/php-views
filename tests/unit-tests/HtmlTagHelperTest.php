@@ -14,7 +14,7 @@ class HtmlTagHelperTest extends TestCase
     public static function provideCommentInvalidContent(): \Generator
     {
         yield [[123], 'Invalid type: int.'];
-        yield [static fn() => 123, 'Invalid type: int.'];
+        yield [static fn () => 123, 'Invalid type: int.'];
     }
 
     public function testComment(): void
@@ -51,10 +51,10 @@ class HtmlTagHelperTest extends TestCase
 
         $element = $html->element('div', [
             'class' => 'a',
-            'id' => null,
             'data-a' => false,
             'data-b' => true,
             'data-c' => '123',
+            'id' => null,
         ]);
         static::assertSame('<div class="a" data-b="" data-c="123"></div>', $doc->saveHTML($element));
 

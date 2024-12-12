@@ -11,30 +11,42 @@ namespace Manychois\Views;
  * @phpstan-type ContentClosure \Closure(self):SimpleContent|iterable<SimpleContent>
  * @phpstan-type Content SimpleContent|iterable<SimpleContent>|ContentClosure
  */
-abstract class AbstractDomView
+abstract class AbstractView
 {
     private static int $idCounter = 0;
     /**
      * @var ViewData The data shared between parent and child views.
      */
     protected readonly ViewData $data;
-    private ?self $parent = null;
+    protected readonly HtmlTagHelper $html;
+    private readonly Builder $builder;
+    private readonly ?self $parent;
     private ?self $child = null;
 
     /**
      * Creates a new instance of AbstractView.
      *
-     * @param ViewData $data The data shared between parent and child views.
+     * @param Builder  $builder The builder that creates this view.
+     * @param ViewData $data    The data shared between parent and child views.
      */
-    public function __construct(ViewData $data)
+    public function __construct(Builder $builder, ViewData $data)
     {
+        $this->builder = $builder;
+        $this->html = new HtmlTagHelper($builder->getDocument());
         $this->data = $data;
+        $parentClass = $this->getParentViewName();
+        $this->parent = $parentClass === null ? null : $builder->resolve($parentClass, $data);
+        if ($this->parent === null) {
+            return;
+        }
+
+        $this->parent->child = $this;
     }
 
     /**
      * Returns the parent view of this view.
      *
-     * @return AbstractDomView|null The parent view of this view, or null if this view has no parent.
+     * @return AbstractView|null The parent view of this view, or null if this view has no parent.
      */
     final public function getParent(): ?self
     {
@@ -44,7 +56,7 @@ abstract class AbstractDomView
     /**
      * Returns the child view of this view.
      *
-     * @return AbstractDomView|null The child view of this view, or null if this view has no child.
+     * @return AbstractView|null The child view of this view, or null if this view has no child.
      */
     final public function getChild(): ?self
     {
@@ -99,20 +111,6 @@ abstract class AbstractDomView
     }
 
     /**
-     * Returns the combined content of this view and its parent views.
-     *
-     * @return \Generator<int,string|\DOMNode|null> The combined content of this view and its parent views.
-     */
-    final public function fullRender(): \Generator
-    {
-        if ($this->parent === null) {
-            yield from $this->render();
-        } else {
-            yield from $this->parent->fullRender();
-        }
-    }
-
-    /**
      * Returns a new unique id value.
      * Uniqueness is based on an internal static counter.
      *
@@ -128,14 +126,16 @@ abstract class AbstractDomView
     }
 
     /**
-     * Sets the parent view of this view.
+     * Renders a partial view.
      *
-     * @param self $parent The parent view.
+     * @param string   $view The name of the view to render.
+     * @param ViewData $data The data to pass to the view.
+     *
+     * @return \Generator<int,string|\DOMNode|null> The content of the partial view.
      */
-    final protected function inherit(self $parent): void
+    final protected function part(string $view, ViewData $data): \Generator
     {
-        $this->parent = $parent;
-        $parent->child = $this;
+        yield from $this->builder->populate($view, $data);
     }
 
     /**
@@ -143,7 +143,15 @@ abstract class AbstractDomView
      *
      * @return \Generator<int,string|\DOMNode|null> The main content of this view.
      */
-    abstract protected function render(): \Generator;
+    abstract public function render(): \Generator;
+
+    /**
+     * Determines the parent view of this view.
+     * This will be called by the constructor to instantiate the parent view.
+     *
+     * @return string|null The parent view of this view, or null if this view has no parent.
+     */
+    abstract protected function getParentViewName(): ?string;
 
     /**
      * Resolves the default content into an iterable of nodes.

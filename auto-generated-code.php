@@ -2,6 +2,9 @@
 
 declare(strict_types=1);
 
+use Manychois\Views\ElementKind;
+use Manychois\Views\Printer;
+
 require_once __DIR__ . '/vendor/autoload.php';
 
 /** @var array<int,string> $tagNames */
@@ -117,23 +120,6 @@ $tagNames = [
     'video',
     'wbr',
 ];
-/** @var array<int,string> $voidTagNames */
-$voidTagNames = [
-    'area',
-    'base',
-    'br',
-    'col',
-    'embed',
-    'hr',
-    'img',
-    'input',
-    'link',
-    'meta',
-    'param',
-    'source',
-    'track',
-    'wbr',
-];
 
 $normalTemplate = <<<'PHP'
 /**
@@ -168,7 +154,7 @@ PHP;
 
 $allCode = '';
 foreach ($tagNames as $tagName) {
-    $isVoid = \in_array($tagName, $voidTagNames, true);
+    $isVoid = \in_array($tagName, ElementKind::VOID, true);
     $template = $isVoid ? $voidTemplate : $normalTemplate;
     $article = \in_array($tagName[0], ['a', 'e', 'i', 'o', 'u'], true) ? 'an' : 'a';
     $code = \sprintf($template, $tagName, $article);
