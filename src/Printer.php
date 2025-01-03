@@ -108,7 +108,8 @@ class Printer
      */
     protected function printText(\DOMText $text): string
     {
-        $tagName = $text->parentElement?->tagName;
+        $parentElement = $text->parentNode instanceof \DOMElement ? $text->parentNode : null;
+        $tagName = $parentElement?->tagName;
         if (\in_array($tagName, ElementKind::RAWTEXT, true)) {
             return \str_replace('</' . $tagName, '&lt;/' . $tagName, $text->data);
         }
@@ -312,7 +313,7 @@ class Printer
      */
     protected function addBeforeOpeningTag(\DOMElement $element, string $spacing): void
     {
-        $parent = $element->parentElement;
+        $parent = $element->parentNode;
         \assert($parent !== null);
         $before = $element->previousSibling;
         $doc = $element->ownerDocument;
@@ -337,7 +338,7 @@ class Printer
     protected function addAfterClosingTag(\DOMElement $element, string $spacing): void
     {
         $next = $element->nextSibling;
-        $parent = $element->parentElement;
+        $parent = $element->parentNode;
         \assert($parent !== null);
         $doc = $element->ownerDocument;
         \assert($doc instanceof \DOMDocument);

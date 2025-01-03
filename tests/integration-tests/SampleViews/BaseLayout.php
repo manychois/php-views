@@ -53,6 +53,7 @@ class BaseLayout extends AbstractView
                 ]),
             ]),
         ]);
+
         yield $h->comment(' end of the test ');
     }
 
