@@ -19,7 +19,7 @@
   "require-dev": {
     "escapestudios/symfony2-coding-standard": "^3.15",
     "phpstan/extension-installer": "^1.4",
-    "phpstan/phpstan": "^2.0",
+    "phpstan/phpstan": "^2.1",
     "phpstan/phpstan-phpunit": "^2.0",
     "phpstan/phpstan-strict-rules": "^2.0",
     "phpunit/phpunit": "^11.4",
@@ -33,6 +33,7 @@
   },
   "autoload-dev": {
     "psr-4": {
+      "Manychois\\ViewTests\\IntegrationTests\\": "tests/integration-tests/",
       "Manychois\\ViewTests\\UnitTests\\": "tests/unit-tests/"
     }
   },

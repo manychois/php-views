@@ -56,9 +56,6 @@ class Printer
             }
         }
 
-        $html = \preg_replace('/\s+\\n/', "\n", $html);
-        \assert(\is_string($html));
-
         return $html;
     }
 
@@ -113,7 +110,7 @@ class Printer
     {
         $tagName = $text->parentElement?->tagName;
         if (\in_array($tagName, ElementKind::RAWTEXT, true)) {
-            return $text->data;
+            return \str_replace('</' . $tagName, '&lt;/' . $tagName, $text->data);
         }
 
         return Esc::html($text->data);
@@ -128,13 +125,14 @@ class Printer
      */
     protected function printElementOpeningTag(\DOMElement $element): string
     {
-        $html = '<' . $element->tagName;
+        $esc = static fn (string $s): string => \str_replace('>', '&gt;', $s);
+        $html = '<' . $esc($element->tagName);
         foreach ($element->attributes as $attr) {
             \assert($attr instanceof \DOMAttr);
             if ($attr->value === '') {
-                $html .= ' ' . $attr->name;
+                $html .= ' ' . $esc($attr->name);
             } else {
-                $html .= \sprintf(' %s="%s"', $attr->name, Esc::attr($attr->value));
+                $html .= \sprintf(' %s="%s"', $esc($attr->name), Esc::attr($attr->value));
             }
         }
 
@@ -154,7 +152,7 @@ class Printer
             return '';
         }
 
-        return '</' . $element->tagName . '>';
+        return '</' . \str_replace('>', '&gt;', $element->tagName) . '>';
     }
 
     /**
@@ -298,7 +296,7 @@ class Printer
             return;
         }
         if ($firstChild instanceof \DOMText) {
-            $firstChild->data = $spacing . \ltrim($firstChild->data);
+            $firstChild->data = self::mergeStr($spacing, $firstChild->data);
         } else {
             $doc = $element->ownerDocument;
             \assert($doc instanceof \DOMDocument);
@@ -323,7 +321,7 @@ class Printer
             $parent->insertBefore($doc->createTextNode($spacing), $element);
         } else {
             if ($before instanceof \DOMText) {
-                $before->data = \rtrim($before->data) . $spacing;
+                $before->data = self::mergeStr($before->data, $spacing);
             } else {
                 $parent->insertBefore($doc->createTextNode($spacing), $element);
             }
@@ -347,7 +345,7 @@ class Printer
             $parent->appendChild($doc->createTextNode($spacing));
         } else {
             if ($next instanceof \DOMText) {
-                $next->data = $spacing . \ltrim($next->data);
+                $next->data = self::mergeStr($spacing, $next->data);
             } else {
                 $parent->insertBefore($doc->createTextNode($spacing), $next);
             }
@@ -367,11 +365,31 @@ class Printer
             return;
         }
         if ($lastChild instanceof \DOMText) {
-            $lastChild->data = \rtrim($lastChild->data) . $spacing;
+            $lastChild->data = self::mergeStr($lastChild->data, $spacing);
         } else {
             $doc = $element->ownerDocument;
             \assert($doc instanceof \DOMDocument);
             $element->appendChild($doc->createTextNode($spacing));
         }
+    }
+
+    /**
+     * Merges two strings by removing the common suffix of the first string and the common prefix of the second string.
+     *
+     * @param string $left  The first string.
+     * @param string $right The second string.
+     *
+     * @return string The merged string.
+     */
+    private static function mergeStr(string $left, string $right): string
+    {
+        $len = \min(\strlen($left), \strlen($right));
+        for ($i = $len; $i > 0; --$i) {
+            if (\substr($left, -$i) === \substr($right, 0, $i)) {
+                return $left . \substr($right, $i);
+            }
+        }
+
+        return $left . $right;
     }
 }

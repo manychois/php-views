@@ -20,9 +20,8 @@ final class Esc
      */
     public static function attr(string $text, bool $unquoted = false): string
     {
-        $esc = \htmlspecialchars($text, \ENT_QUOTES | \ENT_SUBSTITUTE | \ENT_HTML5);
         if ($unquoted) {
-            $esc = \htmlspecialchars($esc, \ENT_NOQUOTES | \ENT_SUBSTITUTE | \ENT_HTML5);
+            $esc = \htmlspecialchars($text, \ENT_NOQUOTES | \ENT_SUBSTITUTE | \ENT_HTML5);
             $esc = \strtr($esc, [
                 "\f" => '&#12;',
                 "\n" => '&#10;',
@@ -30,6 +29,8 @@ final class Esc
                 "\t" => '&#9;',
                 ' ' => '&#32;',
             ]);
+        } else {
+            $esc = \htmlspecialchars($text, \ENT_QUOTES | \ENT_SUBSTITUTE | \ENT_HTML5);
         }
 
         return $esc;

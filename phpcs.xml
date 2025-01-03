@@ -140,6 +140,7 @@
     <properties>
       <property name="rootNamespaces" type="array">
         <element key="src" value="Manychois\Views" />
+        <element key="tests/integration-tests" value="Manychois\ViewTests\IntegrationTests" />
         <element key="tests/unit-tests" value="Manychois\ViewTests\UnitTests" />
       </property>
     </properties>

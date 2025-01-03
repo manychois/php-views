@@ -8,7 +8,7 @@ namespace Manychois\Views;
  * Helper class for creating HTML nodes.
  *
  * @phpstan-type SimpleContent string|\DOMNode|null
- * @phpstan-type ContentClosure \Closure(self):SimpleContent|iterable<SimpleContent>
+ * @phpstan-type ContentClosure \Closure(self):(SimpleContent|iterable<SimpleContent>)
  * @phpstan-type Content SimpleContent|iterable<SimpleContent>|ContentClosure
  * @phpstan-type CommentContent \Closure(self):string|iterable<string|null>|null
  */
