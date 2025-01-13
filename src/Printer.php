@@ -4,6 +4,13 @@ declare(strict_types=1);
 
 namespace Manychois\Views;
 
+use Dom\Attr;
+use Dom\Comment;
+use Dom\Document;
+use Dom\DocumentType;
+use Dom\Element;
+use Dom\Text;
+
 /**
  * Pretty-prints HTML.
  */
@@ -24,20 +31,20 @@ class Printer
     /**
      * Prints the entire document.
      *
-     * @param \DOMDocument $document The document to print.
+     * @param Document $document The document to print.
      *
      * @return string The document HTML.
      */
-    public function print(\DOMDocument $document): string
+    public function print(Document $document): string
     {
-        $document->normalizeDocument();
+        $document->normalize();
 
         $root = $document->documentElement;
         if ($root !== null) {
             $this->addAfterOpeningTag($root, "\n");
             $this->addBeforeClosingTag($root, "\n");
             foreach ($root->childNodes as $node) {
-                if (!($node instanceof \DOMElement)) {
+                if (!($node instanceof Element)) {
                     continue;
                 }
 
@@ -47,11 +54,11 @@ class Printer
 
         $html = '';
         foreach ($document->childNodes as $node) {
-            if ($node instanceof \DOMDocumentType) {
+            if ($node instanceof DocumentType) {
                 $html .= $this->printDoctype($node) . "\n";
-            } elseif ($node instanceof \DOMComment) {
+            } elseif ($node instanceof Comment) {
                 $html .= $this->printComment($node) . "\n";
-            } elseif ($node instanceof \DOMElement) {
+            } elseif ($node instanceof Element) {
                 $html .= $this->printElement($node) . "\n";
             }
         }
@@ -62,11 +69,11 @@ class Printer
     /**
      * Prints the doctype declaration.
      *
-     * @param \DOMDocumentType $doctype The doctype to print.
+     * @param DocumentType $doctype The doctype to print.
      *
      * @return string The doctype HTML.
      */
-    protected function printDoctype(\DOMDocumentType $doctype): string
+    protected function printDoctype(DocumentType $doctype): string
     {
         $html = '<!DOCTYPE ';
         $html .= $doctype->name;
@@ -88,11 +95,11 @@ class Printer
     /**
      * Prints a comment.
      *
-     * @param \DOMComment $comment The comment to print.
+     * @param Comment $comment The comment to print.
      *
      * @return string The comment HTML.
      */
-    protected function printComment(\DOMComment $comment): string
+    protected function printComment(Comment $comment): string
     {
         $esc = static fn (string $s): string => \str_replace('-->', '--&gt;', $s);
 
@@ -102,15 +109,15 @@ class Printer
     /**
      * Prints a text node.
      *
-     * @param \DOMText $text The text node to print.
+     * @param Text $text The text node to print.
      *
      * @return string The text HTML.
      */
-    protected function printText(\DOMText $text): string
+    protected function printText(Text $text): string
     {
-        $parentElement = $text->parentNode instanceof \DOMElement ? $text->parentNode : null;
+        $parentElement = $text->parentNode instanceof Element ? $text->parentNode : null;
         $tagName = $parentElement?->tagName;
-        if (\in_array($tagName, ElementKind::RAWTEXT, true)) {
+        if (\in_array($tagName, HtmlElementKind::RAWTEXT, true)) {
             return \str_replace('</' . $tagName, '&lt;/' . $tagName, $text->data);
         }
 
@@ -120,16 +127,17 @@ class Printer
     /**
      * Prints the opening tag of an element.
      *
-     * @param \DOMElement $element The element to print.
+     * @param Element $element The element to print.
      *
      * @return string The opening tag HTML.
      */
-    protected function printElementOpeningTag(\DOMElement $element): string
+    protected function printElementOpeningTag(Element $element): string
     {
         $esc = static fn (string $s): string => \str_replace('>', '&gt;', $s);
-        $html = '<' . $esc($element->tagName);
+        $html = '<' . $esc($element->localName);
         foreach ($element->attributes as $attr) {
-            \assert($attr instanceof \DOMAttr);
+            // @phpstan-ignore function.alreadyNarrowedType, instanceof.alwaysTrue
+            \assert($attr instanceof Attr);
             if ($attr->value === '') {
                 $html .= ' ' . $esc($attr->name);
             } else {
@@ -143,35 +151,38 @@ class Printer
     /**
      * Prints the closing tag of an element.
      *
-     * @param \DOMElement $element The element to print.
+     * @param Element $element The element to print.
      *
      * @return string The closing tag HTML.
      */
-    protected function printElementClosingTag(\DOMElement $element): string
+    protected function printElementClosingTag(Element $element): string
     {
-        if (\in_array($element->tagName, ElementKind::VOID, true)) {
+        if (
+            $element->namespaceURI === NamespaceUri::HTML &&
+            \in_array($element->localName, HtmlElementKind::VOID, true)
+        ) {
             return '';
         }
 
-        return '</' . \str_replace('>', '&gt;', $element->tagName) . '>';
+        return '</' . \str_replace('>', '&gt;', $element->localName) . '>';
     }
 
     /**
      * Prints an element and its children.
      *
-     * @param \DOMElement $element The element to print.
+     * @param Element $element The element to print.
      *
      * @return string The element HTML.
      */
-    protected function printElement(\DOMElement $element): string
+    protected function printElement(Element $element): string
     {
         $html = $this->printElementOpeningTag($element);
         foreach ($element->childNodes as $node) {
-            if ($node instanceof \DOMElement) {
+            if ($node instanceof Element) {
                 $html .= $this->printElement($node);
-            } elseif ($node instanceof \DOMText) {
+            } elseif ($node instanceof Text) {
                 $html .= $this->printText($node);
-            } elseif ($node instanceof \DOMComment) {
+            } elseif ($node instanceof Comment) {
                 $html .= $this->printComment($node);
             }
         }
@@ -183,13 +194,13 @@ class Printer
      * Determines if an element is an inline block element.
      * An inline block will have indents before its opening tag and after its closing tag.
      *
-     * @param \DOMElement $element The element to check.
+     * @param Element $element The element to check.
      *
      * @return bool `true` if the element is an inline block element, `false` otherwise.
      */
-    protected function isInlineBlockElement(\DOMElement $element): bool
+    protected function isInlineBlockElement(Element $element): bool
     {
-        return \in_array($element->tagName, [
+        return $element->namespaceURI === NamespaceUri::HTML && \in_array($element->localName, [
             'a',
             'button',
             'h1',
@@ -209,13 +220,13 @@ class Printer
      * Determines if an element is an inline element.
      * An inline element will have no indents applied.
      *
-     * @param \DOMElement $element The element to check.
+     * @param Element $element The element to check.
      *
      * @return bool `true` if the element is an inline element, `false` otherwise.
      */
-    protected function isInlineElement(\DOMElement $element): bool
+    protected function isInlineElement(Element $element): bool
     {
-        return \in_array($element->tagName, [
+        return $element->namespaceURI === NamespaceUri::HTML && \in_array($element->localName, [
             'a',
             'abbr',
             'acronym',
@@ -256,10 +267,10 @@ class Printer
     /**
      * Formats an element and its children by injecting newlines and indentation.
      *
-     * @param \DOMElement $element The element to format.
-     * @param int         $level   The current indentation level.
+     * @param Element $element The element to format.
+     * @param int     $level   The current indentation level.
      */
-    protected function format(\DOMElement $element, int $level): void
+    protected function format(Element $element, int $level): void
     {
         if ($this->isInlineElement($element)) {
             // no formatting
@@ -276,7 +287,7 @@ class Printer
         }
 
         foreach ($element->childNodes as $node) {
-            if (!($node instanceof \DOMElement)) {
+            if (!($node instanceof Element)) {
                 continue;
             }
 
@@ -287,20 +298,20 @@ class Printer
     /**
      * Adds spacing after the opening tag of an element.
      *
-     * @param \DOMElement $element The element to add spacing to.
-     * @param string      $spacing The spacing to add.
+     * @param Element $element The element to add spacing to.
+     * @param string  $spacing The spacing to add.
      */
-    protected function addAfterOpeningTag(\DOMElement $element, string $spacing): void
+    protected function addAfterOpeningTag(Element $element, string $spacing): void
     {
         $firstChild = $element->firstChild;
         if ($firstChild === null) {
             return;
         }
-        if ($firstChild instanceof \DOMText) {
+        if ($firstChild instanceof Text) {
             $firstChild->data = self::mergeStr($spacing, $firstChild->data);
         } else {
             $doc = $element->ownerDocument;
-            \assert($doc instanceof \DOMDocument);
+            \assert($doc instanceof Document);
             $element->insertBefore($doc->createTextNode($spacing), $firstChild);
         }
     }
@@ -308,20 +319,20 @@ class Printer
     /**
      * Adds spacing before the opening tag of an element.
      *
-     * @param \DOMElement $element The element to add spacing to.
-     * @param string      $spacing The spacing to add.
+     * @param Element $element The element to add spacing to.
+     * @param string  $spacing The spacing to add.
      */
-    protected function addBeforeOpeningTag(\DOMElement $element, string $spacing): void
+    protected function addBeforeOpeningTag(Element $element, string $spacing): void
     {
         $parent = $element->parentNode;
         \assert($parent !== null);
         $before = $element->previousSibling;
         $doc = $element->ownerDocument;
-        \assert($doc instanceof \DOMDocument);
+        \assert($doc instanceof Document);
         if ($before === null) {
             $parent->insertBefore($doc->createTextNode($spacing), $element);
         } else {
-            if ($before instanceof \DOMText) {
+            if ($before instanceof Text) {
                 $before->data = self::mergeStr($before->data, $spacing);
             } else {
                 $parent->insertBefore($doc->createTextNode($spacing), $element);
@@ -332,20 +343,20 @@ class Printer
     /**
      * Adds spacing after the closing tag of an element.
      *
-     * @param \DOMElement $element The element to add spacing to.
-     * @param string      $spacing The spacing to add.
+     * @param Element $element The element to add spacing to.
+     * @param string  $spacing The spacing to add.
      */
-    protected function addAfterClosingTag(\DOMElement $element, string $spacing): void
+    protected function addAfterClosingTag(Element $element, string $spacing): void
     {
         $next = $element->nextSibling;
         $parent = $element->parentNode;
         \assert($parent !== null);
         $doc = $element->ownerDocument;
-        \assert($doc instanceof \DOMDocument);
+        \assert($doc instanceof Document);
         if ($next === null) {
             $parent->appendChild($doc->createTextNode($spacing));
         } else {
-            if ($next instanceof \DOMText) {
+            if ($next instanceof Text) {
                 $next->data = self::mergeStr($spacing, $next->data);
             } else {
                 $parent->insertBefore($doc->createTextNode($spacing), $next);
@@ -356,20 +367,20 @@ class Printer
     /**
      * Adds spacing before the closing tag of an element.
      *
-     * @param \DOMElement $element The element to add spacing to.
-     * @param string      $spacing The spacing to add.
+     * @param Element $element The element to add spacing to.
+     * @param string  $spacing The spacing to add.
      */
-    protected function addBeforeClosingTag(\DOMElement $element, string $spacing): void
+    protected function addBeforeClosingTag(Element $element, string $spacing): void
     {
         $lastChild = $element->lastChild;
         if ($lastChild === null) {
             return;
         }
-        if ($lastChild instanceof \DOMText) {
+        if ($lastChild instanceof Text) {
             $lastChild->data = self::mergeStr($lastChild->data, $spacing);
         } else {
             $doc = $element->ownerDocument;
-            \assert($doc instanceof \DOMDocument);
+            \assert($doc instanceof Document);
             $element->appendChild($doc->createTextNode($spacing));
         }
     }

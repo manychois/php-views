@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Manychois\Views;
 
+use Dom\HTMLDocument;
+
 /**
  * Represents a builder that instantiates and renders views.
  */
 class Builder
 {
-    private \DOMDocument $document;
+    private HTMLDocument $document;
 
     /**
      * Returns the combined content of this view and its parent views.
@@ -17,7 +19,7 @@ class Builder
      * @param string   $view The name of the view to render.
      * @param ViewData $data The data to pass to the view.
      *
-     * @return \Generator<int,string|\DOMNode|null> The combined content of this view and its parent views.
+     * @return \Generator<int,string|\Dom\Node|null> The combined content of this view and its parent views.
      */
     final public function populate(string $view, ViewData $data): \Generator
     {
@@ -35,17 +37,19 @@ class Builder
      */
     final public function prepareDocument(): void
     {
-        $this->document = new \DOMDocument();
-        $doctype = $this->document->implementation->createDocumentType('html');
-        $this->document->appendChild($doctype);
+        $doc = HTMLDocument::createEmpty();
+        $doctype = $doc->implementation->createDocumentType('html', '', '');
+        $doctype = $doc->importNode($doctype, true);
+        $doc->appendChild($doctype);
+        $this->document = $doc;
     }
 
     /**
      * Returns the current document that is being built.
      *
-     * @return \DOMDocument The current document that is being built.
+     * @return HTMLDocument The current document that is being built.
      */
-    public function getDocument(): \DOMDocument
+    public function getDocument(): HTMLDocument
     {
         return $this->document;
     }

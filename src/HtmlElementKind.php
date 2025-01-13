@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Manychois\Views;
 
 /**
- * Represents the kind of an element.
+ * Represents the kind of an HTML element.
  */
-final class ElementKind
+final class HtmlElementKind
 {
     public const VOID = [
         'area',

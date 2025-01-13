@@ -315,6 +315,8 @@ class ViewData
 
         try {
             return $action($this);
+        } catch (\Throwable $ex) {
+            throw $ex;
         } finally {
             foreach (\array_keys($data) as $key) {
                 unset($this->internal[$key]);

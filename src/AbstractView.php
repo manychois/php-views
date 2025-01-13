@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Manychois\Views;
 
+use Dom\Node;
+
 /**
  * Base class for building view template composited of DOM nodes.
  *
- * @phpstan-type SimpleContent string|\DOMNode|null
+ * @phpstan-type SimpleContent string|Node|null
  * @phpstan-type ContentClosure \Closure(self):SimpleContent|iterable<SimpleContent>
  * @phpstan-type Content SimpleContent|iterable<SimpleContent>|ContentClosure
  */
@@ -68,11 +70,11 @@ abstract class AbstractView
      *
      * @param mixed $default The default content to return if the child view does not exist.
      *
-     * @return \Generator<int,string|\DOMNode|null> The main content of the child view.
+     * @return \Generator<int,string|Node|null> The main content of the child view.
      *
      * @phpstan-param Content $default
      */
-    final public function content(string|\DOMNode|iterable|\Closure|null $default = null): \Generator
+    final public function content(string|Node|iterable|\Closure|null $default = null): \Generator
     {
         if ($this->child === null) {
             yield from $this->resolveDefault($default);
@@ -88,11 +90,11 @@ abstract class AbstractView
      * @param mixed  $default The default content to return if the region does not exist, or
      *                        if the child view does not exist.
      *
-     * @return \Generator<int,string|\DOMNode|null> The content of the specified region.
+     * @return \Generator<int,string|Node|null> The content of the specified region.
      *
      * @phpstan-param Content $default
      */
-    final public function region(string $name, string|\DOMNode|iterable|\Closure|null $default = null): \Generator
+    final public function region(string $name, string|Node|iterable|\Closure|null $default = null): \Generator
     {
         if ($this->child === null) {
             yield from $this->resolveDefault($default);
@@ -100,7 +102,7 @@ abstract class AbstractView
             $reflection = new \ReflectionObject($this->child);
             $methodName = 'renderRegion' . \ucfirst($name);
             if ($reflection->hasMethod($methodName)) {
-                /** @var \Generator<int,string|\DOMNode|null> $generator */
+                /** @var \Generator<int,string|Node|null> $generator */
                 $generator = $this->child->$methodName();
 
                 yield from $generator;
@@ -131,7 +133,7 @@ abstract class AbstractView
      * @param string   $view The name of the view to render.
      * @param ViewData $data The data to pass to the view.
      *
-     * @return \Generator<int,string|\DOMNode|null> The content of the partial view.
+     * @return \Generator<int,string|Node|null> The content of the partial view.
      */
     final protected function part(string $view, ViewData $data): \Generator
     {
@@ -141,7 +143,7 @@ abstract class AbstractView
     /**
      * Returns the main content of this view.
      *
-     * @return \Generator<int,string|\DOMNode|null> The main content of this view.
+     * @return \Generator<int,string|Node|null> The main content of this view.
      */
     abstract public function render(): \Generator;
 
@@ -158,11 +160,11 @@ abstract class AbstractView
      *
      * @param mixed $default The default content.
      *
-     * @return \Generator<int,string|\DOMNode> The resolved content.
+     * @return \Generator<int,string|Node> The resolved content.
      *
      * @phpstan-param Content $default
      */
-    private function resolveDefault(string|\DOMNode|iterable|\Closure|null $default): \Generator
+    private function resolveDefault(string|Node|iterable|\Closure|null $default): \Generator
     {
         $resolved = $default instanceof \Closure ? $default($this) : $default;
         if (\is_iterable($resolved)) {
@@ -171,13 +173,13 @@ abstract class AbstractView
                     continue;
                 }
 
-                if ($child instanceof \DOMNode || \is_string($child)) {
+                if ($child instanceof Node || \is_string($child)) {
                     yield $child;
                 }
 
                 throw new \TypeError(\sprintf('Invalid object type: %s.', \get_debug_type($resolved)));
             }
-        } elseif (\is_string($resolved) || $resolved instanceof \DOMNode) {
+        } elseif (\is_string($resolved) || $resolved instanceof Node) {
             yield $resolved;
         } elseif ($resolved !== null) {
             throw new \TypeError(\sprintf('Invalid object type: %s.', \get_debug_type($resolved)));

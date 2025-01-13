@@ -2,8 +2,7 @@
 
 declare(strict_types=1);
 
-use Manychois\Views\ElementKind;
-use Manychois\Views\Printer;
+use Manychois\Views\HtmlElementKind;
 
 require_once __DIR__ . '/vendor/autoload.php';
 
@@ -125,14 +124,14 @@ $normalTemplate = <<<'PHP'
 /**
  * Create %2$s `<%1$s>` element.
  *
- * @param array<string,bool|string|null>                               $attrs The attributes.
- * @param string|\DOMNode|iterable<string|\DOMNode|null>|\Closure|null $inner The inner content.
+ * @param array<string,bool|string|null>                       $attrs The attributes.
+ * @param string|Node|iterable<string|Node|null>|\Closure|null $inner The inner content.
  *
- * @return \DOMElement The created `<%1$s>` element.
+ * @return Element The created `<%1$s>` element.
  *
  * @phpstan-param Content $inner
  */
-public function %1$s(array $attrs = [], string|\DOMNode|iterable|\Closure|null $inner = null): \DOMElement
+public function %1$s(array $attrs = [], string|Node|iterable|\Closure|null $inner = null): Element
 {
     return $this->element('%1$s', $attrs, $inner);
 }
@@ -144,9 +143,9 @@ $voidTemplate = <<<'PHP'
  *
  * @param array<string,bool|string|null> $attrs The attributes.
  *
- * @return \DOMElement The created `<%1$s>` element.
+ * @return Element The created `<%1$s>` element.
  */
-public function %1$s(array $attrs = []): \DOMElement
+public function %1$s(array $attrs = []): Element
 {
     return $this->element('%1$s', $attrs);
 }
@@ -154,7 +153,7 @@ PHP;
 
 $allCode = '';
 foreach ($tagNames as $tagName) {
-    $isVoid = \in_array($tagName, ElementKind::VOID, true);
+    $isVoid = \in_array($tagName, HtmlElementKind::VOID, true);
     $template = $isVoid ? $voidTemplate : $normalTemplate;
     $article = \in_array($tagName[0], ['a', 'e', 'i', 'o', 'u'], true) ? 'an' : 'a';
     $code = \sprintf($template, $tagName, $article);
