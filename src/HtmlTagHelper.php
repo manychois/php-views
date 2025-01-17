@@ -13,8 +13,9 @@ use Dom\Node;
  * Helper class for creating HTML nodes.
  *
  * @phpstan-type SimpleContent string|Node|null
- * @phpstan-type ContentClosure \Closure(self):(SimpleContent|iterable<SimpleContent>)
- * @phpstan-type Content SimpleContent|iterable<SimpleContent>|ContentClosure
+ * @phpstan-type MultiContent iterable<SimpleContent|iterable<SimpleContent>>
+ * @phpstan-type ContentClosure \Closure(self):(SimpleContent|MultiContent)
+ * @phpstan-type Content SimpleContent|MultiContent|ContentClosure
  * @phpstan-type CommentContent \Closure(self):string|iterable<string|null>|null
  */
 final class HtmlTagHelper
@@ -101,6 +102,18 @@ final class HtmlTagHelper
                 $element->appendChild($item);
             } elseif ($item === null) {
                 continue;
+            } elseif (\is_iterable($item)) {
+                foreach ($item as $innerItem) {
+                    if (\is_string($innerItem)) {
+                        $element->appendChild($this->ownerDocument->createTextNode($innerItem));
+                    } elseif ($innerItem instanceof Node) {
+                        $element->appendChild($innerItem);
+                    } elseif ($innerItem === null) {
+                        continue;
+                    } else {
+                        throw new \TypeError(\sprintf('Invalid type: %s.', \get_debug_type($innerItem)));
+                    }
+                }
             } else {
                 throw new \TypeError(\sprintf('Invalid type: %s.', \get_debug_type($item)));
             }

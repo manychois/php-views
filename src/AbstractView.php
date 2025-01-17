@@ -10,8 +10,9 @@ use Dom\Node;
  * Base class for building view template composited of DOM nodes.
  *
  * @phpstan-type SimpleContent string|Node|null
- * @phpstan-type ContentClosure \Closure(self):SimpleContent|iterable<SimpleContent>
- * @phpstan-type Content SimpleContent|iterable<SimpleContent>|ContentClosure
+ * @phpstan-type MultiContent iterable<SimpleContent|iterable<SimpleContent>>
+ * @phpstan-type ContentClosure \Closure(self):(SimpleContent|MultiContent)
+ * @phpstan-type Content SimpleContent|MultiContent|ContentClosure
  */
 abstract class AbstractView
 {
