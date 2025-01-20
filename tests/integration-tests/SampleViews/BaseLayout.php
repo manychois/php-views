@@ -4,18 +4,19 @@ declare(strict_types=1);
 
 namespace Manychois\ViewTests\IntegrationTests\SampleViews;
 
+use Dom\Node;
 use Manychois\Views\AbstractView;
 
 class BaseLayout extends AbstractView
 {
     #region extends AbstractView
 
-    public function render(): \Generator
+    public function render(): Node
     {
         $h = $this->html;
         $d = $this->data;
 
-        yield $h->html(['lang' => $d->getString('lang', 'en')], [
+        return $h->html(['lang' => $d->getString('lang', 'en')], [
             $h->head([], [
                 $h->meta(['charset' => 'utf-8']),
                 $h->meta(['name' => 'viewport', 'content' => 'width=device-width, initial-scale=1']),
@@ -53,8 +54,6 @@ class BaseLayout extends AbstractView
                 ]),
             ]),
         ]);
-
-        yield $h->comment(' end of the test ');
     }
 
     protected function getParentViewName(): ?string

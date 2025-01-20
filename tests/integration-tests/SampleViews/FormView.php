@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Manychois\ViewTests\IntegrationTests\SampleViews;
 
+use Dom\Node;
 use Manychois\Views\AbstractView;
 use Manychois\Views\ViewData;
 
@@ -14,23 +15,23 @@ class FormView extends AbstractView
     /**
      * @inheritDoc
      */
-    public function render(): \Generator
+    public function render(): Node
     {
         $h = $this->html;
         $d = $this->data;
 
-        yield $h->form([], function () use ($h, $d) {
-            yield from $this->part(FormInput::class, new ViewData([
+        return $h->form([], [
+            $this->part(FormInput::class, new ViewData([
                 'label' => 'Email address',
                 'type' => 'email',
                 'value' => $d->getString('email'),
-            ]));
-            yield from $this->part(FormInput::class, new ViewData([
+            ])),
+            $this->part(FormInput::class, new ViewData([
                 'label' => 'Password',
                 'type' => 'password',
-            ]));
-            yield $h->button(['type' => 'submit', 'class' => 'btn btn-primary'], 'Submit');
-        });
+            ])),
+            $h->button(['type' => 'submit', 'class' => 'btn btn-primary'], 'Submit'),
+        ]);
     }
 
     /**

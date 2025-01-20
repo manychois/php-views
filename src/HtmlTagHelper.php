@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Manychois\Views;
 
-use Dom\Comment;
 use Dom\Element;
 use Dom\HTMLDocument;
 use Dom\Node;
@@ -30,41 +29,6 @@ final class HtmlTagHelper
     public function __construct(HTMLDocument $ownerDocument)
     {
         $this->ownerDocument = $ownerDocument;
-    }
-
-    /**
-     * Creates a comment.
-     *
-     * @param string|iterable<string|Node|null>|\Closure|null $inner The inner content.
-     *
-     * @return Comment The created comment.
-     *
-     * @phpstan-param string|iterable<string|null>|CommentContent|null $inner
-     */
-    public function comment(string|iterable|\Closure|null $inner = null): Comment
-    {
-        $data = $inner instanceof \Closure ? $inner($this) : $inner;
-        if ($data === null) {
-            $data = '';
-        } elseif (\is_iterable($data)) {
-            $concatenated = '';
-            foreach ($data as $item) {
-                if ($item === null) {
-                    continue;
-                }
-
-                if (!\is_string($item)) {
-                    throw new \TypeError(\sprintf('Invalid type: %s.', \get_debug_type($item)));
-                }
-
-                $concatenated .= $item;
-            }
-            $data = $concatenated;
-        } elseif (!\is_string($data)) {
-            throw new \TypeError(\sprintf('Invalid type: %s.', \get_debug_type($data)));
-        }
-
-        return $this->ownerDocument->createComment($data);
     }
 
     /**

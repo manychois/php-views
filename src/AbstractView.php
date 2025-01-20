@@ -4,15 +4,13 @@ declare(strict_types=1);
 
 namespace Manychois\Views;
 
+use Dom\DocumentFragment;
+use Dom\HTMLDocument;
 use Dom\Node;
+use Dom\Text;
 
 /**
  * Base class for building view template composited of DOM nodes.
- *
- * @phpstan-type SimpleContent string|Node|null
- * @phpstan-type MultiContent iterable<SimpleContent|iterable<SimpleContent>>
- * @phpstan-type ContentClosure \Closure(self):(SimpleContent|MultiContent)
- * @phpstan-type Content SimpleContent|MultiContent|ContentClosure
  */
 abstract class AbstractView
 {
@@ -21,6 +19,7 @@ abstract class AbstractView
      * @var ViewData The data shared between parent and child views.
      */
     protected readonly ViewData $data;
+    protected readonly HTMLDocument $doc;
     protected readonly HtmlTagHelper $html;
     private readonly Builder $builder;
     private readonly ?self $parent;
@@ -35,7 +34,8 @@ abstract class AbstractView
     public function __construct(Builder $builder, ViewData $data)
     {
         $this->builder = $builder;
-        $this->html = new HtmlTagHelper($builder->getDocument());
+        $this->doc = $builder->getDocument();
+        $this->html = new HtmlTagHelper($this->doc);
         $this->data = $data;
         $parentClass = $this->getParentViewName();
         $this->parent = $parentClass === null ? null : $builder->resolve($parentClass, $data);
@@ -71,17 +71,17 @@ abstract class AbstractView
      *
      * @param mixed $default The default content to return if the child view does not exist.
      *
-     * @return \Generator<int,string|Node|null> The main content of the child view.
+     * @return Node The main content of the child view.
      *
-     * @phpstan-param Content $default
+     * @phpstan-param string|Node|iterable<string|Node|\Closure|null>|\Closure|null $default
      */
-    final public function content(string|Node|iterable|\Closure|null $default = null): \Generator
+    final public function content(string|Node|iterable|\Closure|null $default = null): Node
     {
         if ($this->child === null) {
-            yield from $this->resolveDefault($default);
-        } else {
-            yield from $this->child->render();
+            return $this->convertToDocFragment($default);
         }
+
+        return $this->child->render();
     }
 
     /**
@@ -91,26 +91,26 @@ abstract class AbstractView
      * @param mixed  $default The default content to return if the region does not exist, or
      *                        if the child view does not exist.
      *
-     * @return \Generator<int,string|Node|null> The content of the specified region.
+     * @return Node The content of the specified region.
      *
-     * @phpstan-param Content $default
+     * @phpstan-param string|Node|iterable<string|Node|\Closure|null>|\Closure|null $default
      */
-    final public function region(string $name, string|Node|iterable|\Closure|null $default = null): \Generator
+    final public function region(string $name, string|Node|iterable|\Closure|null $default = null): Node
     {
         if ($this->child === null) {
-            yield from $this->resolveDefault($default);
-        } else {
-            $reflection = new \ReflectionObject($this->child);
-            $methodName = 'renderRegion' . \ucfirst($name);
-            if ($reflection->hasMethod($methodName)) {
-                /** @var \Generator<int,string|Node|null> $generator */
-                $generator = $this->child->$methodName();
-
-                yield from $generator;
-            } else {
-                yield from $this->resolveDefault($default);
-            }
+            return $this->convertToDocFragment($default);
         }
+
+        $reflection = new \ReflectionObject($this->child);
+        $methodName = 'renderRegion' . \ucfirst($name);
+        if ($reflection->hasMethod($methodName)) {
+            $docFrg = $this->child->$methodName();
+            \assert($docFrg instanceof Node);
+
+            return $docFrg;
+        }
+
+        return $this->convertToDocFragment($default);
     }
 
     /**
@@ -134,19 +134,19 @@ abstract class AbstractView
      * @param string   $view The name of the view to render.
      * @param ViewData $data The data to pass to the view.
      *
-     * @return \Generator<int,string|Node|null> The content of the partial view.
+     * @return Node The content of the partial view.
      */
-    final protected function part(string $view, ViewData $data): \Generator
+    final protected function part(string $view, ViewData $data): Node
     {
-        yield from $this->builder->populate($view, $data);
+        return $this->builder->populate($view, $data);
     }
 
     /**
      * Returns the main content of this view.
      *
-     * @return \Generator<int,string|Node|null> The main content of this view.
+     * @return Node The main content of this view.
      */
-    abstract public function render(): \Generator;
+    abstract public function render(): Node;
 
     /**
      * Determines the parent view of this view.
@@ -161,29 +161,68 @@ abstract class AbstractView
      *
      * @param mixed $default The default content.
      *
-     * @return \Generator<int,string|Node> The resolved content.
+     * @return DocumentFragment The resolved content.
      *
-     * @phpstan-param Content $default
+     * @phpstan-param string|Node|iterable<string|Node|\Closure|null>|\Closure|null $default
      */
-    private function resolveDefault(string|Node|iterable|\Closure|null $default): \Generator
+    protected function convertToDocFragment(string|Node|iterable|\Closure|null $default): DocumentFragment
     {
-        $resolved = $default instanceof \Closure ? $default($this) : $default;
-        if (\is_iterable($resolved)) {
-            foreach ($resolved as $child) {
-                if ($child === null) {
-                    continue;
-                }
+        $doc = $this->builder->getDocument();
+        $docFrg = $doc->createDocumentFragment();
+        $this->appendDocFragment($doc, $docFrg, $default);
 
-                if ($child instanceof Node || \is_string($child)) {
-                    yield $child;
-                }
+        return $docFrg;
+    }
 
-                throw new \TypeError(\sprintf('Invalid object type: %s.', \get_debug_type($resolved)));
-            }
-        } elseif (\is_string($resolved) || $resolved instanceof Node) {
-            yield $resolved;
-        } elseif ($resolved !== null) {
-            throw new \TypeError(\sprintf('Invalid object type: %s.', \get_debug_type($resolved)));
+    /**
+     * Appends the specified item to the document fragment.
+     *
+     * @param HTMLDocument                      $doc     The ownder document of the document fragment.
+     * @param DocumentFragment                  $docFrag The document fragment to append to.
+     * @param string|Node|iterable|Closure|null $item    The item to append.
+     *
+     * @phpstan-param string|Node|iterable<string|Node|\Closure|null>|\Closure|null $item
+     */
+    protected function appendDocFragment(
+        HTMLDocument $doc,
+        DocumentFragment $docFrag,
+        string|Node|iterable|\Closure|null $item
+    ): void {
+        if ($item === null) {
+            return;
         }
+
+        if (\is_string($item)) {
+            if ($docFrag->lastChild instanceof Text) {
+                $docFrag->lastChild->data .= $item;
+
+                return;
+            }
+
+            $item = $doc->createTextNode($item);
+            $docFrag->appendChild($item);
+
+            return;
+        }
+
+        if ($item instanceof Node) {
+            $docFrag->appendChild($item);
+
+            return;
+        }
+
+        if (\is_iterable($item)) {
+            foreach ($item as $child) {
+                $this->appendDocFragment($doc, $docFrag, $child);
+            }
+
+            return;
+        }
+
+        /**
+         * @var string|Node|iterable<string|Node|\Closure|null>|\Closure|null $result
+         */
+        $result = $item($this);
+        $this->appendDocFragment($doc, $docFrag, $result);
     }
 }

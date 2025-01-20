@@ -6,7 +6,6 @@ namespace Manychois\ViewTests\UnitTests;
 
 use Dom\HTMLDocument;
 use Manychois\Views\HtmlTagHelper;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class HtmlTagHelperTest extends TestCase
@@ -15,31 +14,6 @@ class HtmlTagHelperTest extends TestCase
     {
         yield [[123], 'Invalid type: int.'];
         yield [static fn () => 123, 'Invalid type: int.'];
-    }
-
-    public function testComment(): void
-    {
-        $doc = HTMLDocument::createEmpty();
-        $html = new HtmlTagHelper($doc);
-        $comment = $html->comment('This is a comment.');
-        static::assertSame('<!--This is a comment.-->', $doc->saveHtml($comment));
-
-        $comment = $html->comment();
-        static::assertSame('<!---->', $doc->saveHtml($comment));
-
-        $comment = $html->comment(['a', 'b', null, 'c']);
-        static::assertSame('<!--abc-->', $doc->saveHtml($comment));
-    }
-
-    #[DataProvider('provideCommentInvalidContent')]
-    public function testCommentInvalidContent(mixed $inner, string $errMsg): void
-    {
-        $doc = HTMLDocument::createEmpty();
-        $html = new HtmlTagHelper($doc);
-        $this->expectException(\TypeError::class);
-        $this->expectExceptionMessage($errMsg);
-        // @phpstan-ignore argument.type
-        $html->comment($inner);
     }
 
     public function testElement(): void

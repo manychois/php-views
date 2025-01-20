@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Manychois\ViewTests\IntegrationTests\SampleViews;
 
+use Dom\Node;
 use Manychois\Views\AbstractView;
 
 class FormInput extends AbstractView
@@ -13,13 +14,13 @@ class FormInput extends AbstractView
     /**
      * @inheritDoc
      */
-    public function render(): \Generator
+    public function render(): Node
     {
         $h = $this->html;
         $d = $this->data;
         $id = $this->newId();
 
-        yield $h->div(['class' => $d->getString('class', 'mb-3')], [
+        return $h->div(['class' => $d->getString('class', 'mb-3')], [
             $h->label(['for' => $id, 'class' => 'form-label'], $d->getString('label')),
             $h->input(
                 ['class' => 'form-control',

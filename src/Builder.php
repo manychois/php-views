@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Manychois\Views;
 
 use Dom\HTMLDocument;
+use Dom\Node;
 
 /**
  * Represents a builder that instantiates and renders views.
@@ -19,9 +20,9 @@ class Builder
      * @param string   $view The name of the view to render.
      * @param ViewData $data The data to pass to the view.
      *
-     * @return \Generator<int,string|\Dom\Node|null> The combined content of this view and its parent views.
+     * @return Node The combined content of this view and its parent views.
      */
-    final public function populate(string $view, ViewData $data): \Generator
+    final public function populate(string $view, ViewData $data): Node
     {
         $instance = $this->resolve($view, $data);
         $topmost = $instance;
@@ -29,7 +30,7 @@ class Builder
             $topmost = $topmost->getParent();
         }
 
-        yield from $topmost->render();
+        return $topmost->render();
     }
 
     /**

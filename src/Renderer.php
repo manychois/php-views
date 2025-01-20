@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Manychois\Views;
 
-use Dom\Text;
-
 /**
  * Consolidates the building and printing of views.
  */
@@ -38,12 +36,7 @@ class Renderer
     {
         $this->builder->prepareDocument();
         $doc = $this->builder->getDocument();
-        foreach ($this->builder->populate($view, $data) as $node) {
-            if ($node === null || \is_string($node) || $node instanceof Text) {
-                continue;
-            }
-            $doc->appendChild($node);
-        }
+        $doc->appendChild($this->builder->populate($view, $data));
 
         return $this->printer->print($doc);
     }
