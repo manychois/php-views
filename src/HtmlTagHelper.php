@@ -5,34 +5,17 @@ declare(strict_types=1);
 namespace Manychois\Views;
 
 use Dom\Element;
-use Dom\HTMLDocument;
 use Dom\Node;
 
 /**
  * Helper class for creating HTML nodes.
  *
- * @phpstan-type SimpleContent string|Node|null
- * @phpstan-type MultiContent iterable<SimpleContent|iterable<SimpleContent>>
- * @phpstan-type ContentClosure \Closure(self):(SimpleContent|MultiContent)
- * @phpstan-type Content SimpleContent|MultiContent|ContentClosure
- * @phpstan-type CommentContent \Closure(self):string|iterable<string|null>|null
+ * @phpstan-type Content string|Node|iterable<string|Node|\Closure|null>|\Closure|null
  */
-final class HtmlTagHelper
+final class HtmlTagHelper extends AbstractTagHelper
 {
-    public readonly HTMLDocument $ownerDocument;
-
     /**
-     * Initializes a new instance of HtmlTagHelper.
-     *
-     * @param HTMLDocument $ownerDocument The owner document.
-     */
-    public function __construct(HTMLDocument $ownerDocument)
-    {
-        $this->ownerDocument = $ownerDocument;
-    }
-
-    /**
-     * Create an element.
+     * Create an HTML element.
      *
      * @param string                                               $tag   The tag name.
      * @param array<string,bool|string|null>                       $attrs The attributes.
@@ -44,46 +27,7 @@ final class HtmlTagHelper
      */
     public function element(string $tag, array $attrs = [], string|Node|iterable|\Closure|null $inner = null): Element
     {
-        $element = $this->ownerDocument->createElement($tag);
-        foreach ($attrs as $name => $value) {
-            if ($value === null || $value === false) {
-                continue;
-            }
-            if ($value === true) {
-                $value = '';
-            }
-            $element->setAttribute($name, $value);
-        }
-
-        $children = $inner instanceof \Closure ? $inner($this) : $inner;
-        if (!\is_iterable($children)) {
-            $children = [$children];
-        }
-        foreach ($children as $item) {
-            if (\is_string($item)) {
-                $element->appendChild($this->ownerDocument->createTextNode($item));
-            } elseif ($item instanceof Node) {
-                $element->appendChild($item);
-            } elseif ($item === null) {
-                continue;
-            } elseif (\is_iterable($item)) {
-                foreach ($item as $innerItem) {
-                    if (\is_string($innerItem)) {
-                        $element->appendChild($this->ownerDocument->createTextNode($innerItem));
-                    } elseif ($innerItem instanceof Node) {
-                        $element->appendChild($innerItem);
-                    } elseif ($innerItem === null) {
-                        continue;
-                    } else {
-                        throw new \TypeError(\sprintf('Invalid type: %s.', \get_debug_type($innerItem)));
-                    }
-                }
-            } else {
-                throw new \TypeError(\sprintf('Invalid type: %s.', \get_debug_type($item)));
-            }
-        }
-
-        return $element;
+        return $this->elementNs(null, $tag, $attrs, $inner);
     }
 
     // @codeCoverageIgnoreStart

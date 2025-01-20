@@ -40,14 +40,4 @@ class HtmlTagHelperTest extends TestCase
         ]);
         static::assertSame('<a><b>c</b></a>', $doc->saveHtml($element));
     }
-
-    public function testElementInvalidContent(): void
-    {
-        $doc = HTMLDocument::createEmpty();
-        $html = new HtmlTagHelper($doc);
-        $this->expectException(\TypeError::class);
-        $this->expectExceptionMessage('Invalid type: int.');
-        // @phpstan-ignore argument.type
-        $html->element('div', [], static fn () => 123);
-    }
 }

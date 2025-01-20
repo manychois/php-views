@@ -7,7 +7,6 @@ namespace Manychois\Views;
 use Dom\DocumentFragment;
 use Dom\HTMLDocument;
 use Dom\Node;
-use Dom\Text;
 
 /**
  * Base class for building view template composited of DOM nodes.
@@ -21,6 +20,8 @@ abstract class AbstractView
     protected readonly ViewData $data;
     protected readonly HTMLDocument $doc;
     protected readonly HtmlTagHelper $html;
+    protected readonly SvgTagHelper $svg;
+    protected readonly MathmlTagHelper $mathml;
     private readonly Builder $builder;
     private readonly ?self $parent;
     private ?self $child = null;
@@ -36,6 +37,9 @@ abstract class AbstractView
         $this->builder = $builder;
         $this->doc = $builder->getDocument();
         $this->html = new HtmlTagHelper($this->doc);
+        $this->svg = new SvgTagHelper($this->doc);
+        $this->mathml = new MathmlTagHelper($this->doc);
+
         $this->data = $data;
         $parentClass = $this->getParentViewName();
         $this->parent = $parentClass === null ? null : $builder->resolve($parentClass, $data);
@@ -169,60 +173,8 @@ abstract class AbstractView
     {
         $doc = $this->builder->getDocument();
         $docFrg = $doc->createDocumentFragment();
-        $this->appendDocFragment($doc, $docFrg, $default);
+        AbstractTagHelper::append($doc, $docFrg, $default);
 
         return $docFrg;
-    }
-
-    /**
-     * Appends the specified item to the document fragment.
-     *
-     * @param HTMLDocument                      $doc     The ownder document of the document fragment.
-     * @param DocumentFragment                  $docFrag The document fragment to append to.
-     * @param string|Node|iterable|Closure|null $item    The item to append.
-     *
-     * @phpstan-param string|Node|iterable<string|Node|\Closure|null>|\Closure|null $item
-     */
-    protected function appendDocFragment(
-        HTMLDocument $doc,
-        DocumentFragment $docFrag,
-        string|Node|iterable|\Closure|null $item
-    ): void {
-        if ($item === null) {
-            return;
-        }
-
-        if (\is_string($item)) {
-            if ($docFrag->lastChild instanceof Text) {
-                $docFrag->lastChild->data .= $item;
-
-                return;
-            }
-
-            $item = $doc->createTextNode($item);
-            $docFrag->appendChild($item);
-
-            return;
-        }
-
-        if ($item instanceof Node) {
-            $docFrag->appendChild($item);
-
-            return;
-        }
-
-        if (\is_iterable($item)) {
-            foreach ($item as $child) {
-                $this->appendDocFragment($doc, $docFrag, $child);
-            }
-
-            return;
-        }
-
-        /**
-         * @var string|Node|iterable<string|Node|\Closure|null>|\Closure|null $result
-         */
-        $result = $item($this);
-        $this->appendDocFragment($doc, $docFrag, $result);
     }
 }
