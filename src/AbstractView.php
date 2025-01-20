@@ -146,6 +146,37 @@ abstract class AbstractView
     }
 
     /**
+     * Resolves the default content into an iterable of nodes.
+     *
+     * @param mixed $default The default content.
+     *
+     * @return DocumentFragment The resolved content.
+     *
+     * @phpstan-param string|Node|iterable<string|Node|\Closure|null>|\Closure|null $default
+     */
+    final protected function convertToDocFragment(string|Node|iterable|\Closure|null $default): DocumentFragment
+    {
+        $doc = $this->builder->getDocument();
+        $docFrg = $doc->createDocumentFragment();
+        AbstractTagHelper::append($doc, $docFrg, $default);
+
+        return $docFrg;
+    }
+
+    /**
+     * Parses an HTML string and returns the resulting node.
+     *
+     * @param string $context Inside which tag the HTML content is supposed to be.
+     * @param string $html    The HTML content.
+     *
+     * @return Node The resulting node.
+     */
+    final protected function parsePartial(string $context, string $html): Node
+    {
+        return AbstractTagHelper::parsePartial($this->doc, $context, $html);
+    }
+
+    /**
      * Returns the main content of this view.
      *
      * @return Node The main content of this view.
@@ -159,22 +190,4 @@ abstract class AbstractView
      * @return string|null The parent view of this view, or null if this view has no parent.
      */
     abstract protected function getParentViewName(): ?string;
-
-    /**
-     * Resolves the default content into an iterable of nodes.
-     *
-     * @param mixed $default The default content.
-     *
-     * @return DocumentFragment The resolved content.
-     *
-     * @phpstan-param string|Node|iterable<string|Node|\Closure|null>|\Closure|null $default
-     */
-    protected function convertToDocFragment(string|Node|iterable|\Closure|null $default): DocumentFragment
-    {
-        $doc = $this->builder->getDocument();
-        $docFrg = $doc->createDocumentFragment();
-        AbstractTagHelper::append($doc, $docFrg, $default);
-
-        return $docFrg;
-    }
 }

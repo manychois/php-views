@@ -78,6 +78,35 @@ abstract class AbstractTagHelper
     }
 
     /**
+     * Parses an HTML string and returns the resulting node.
+     *
+     * @param HTMLDocument $doc     The owner document.
+     * @param string       $context Inside which tag the HTML content is supposed to be.
+     * @param string       $html    The HTML content.
+     *
+     * @return Node The resulting node.
+     */
+    public static function parsePartial(HTMLDocument $doc, string $context, string $html): Node
+    {
+        $parent = $doc->createElement($context);
+        $parent->innerHTML = $html;
+        if ($parent->childNodes->length === 1) {
+            $child = $parent->firstChild;
+            \assert($child !== null);
+            $parent->removeChild($child);
+
+            return $child;
+        }
+
+        $fragment = $doc->createDocumentFragment();
+        foreach ($parent->childNodes as $child) {
+            $fragment->appendChild($child);
+        }
+
+        return $fragment;
+    }
+
+    /**
      * Create an element in the specified namespace.
      *
      * @param string|null                                          $namespaceUri The namespace URI.
