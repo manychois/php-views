@@ -213,6 +213,7 @@ class Printer
             'li',
             'progress',
             'title',
+            'textarea',
         ], true);
     }
 
